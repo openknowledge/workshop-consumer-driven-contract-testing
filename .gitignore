@@ -1,0 +1,8 @@
+/.*
+/*/.*
+!.gitignore
+!.github
+!.gitattributes
+/keycloak/*
+target/
+*.iml
