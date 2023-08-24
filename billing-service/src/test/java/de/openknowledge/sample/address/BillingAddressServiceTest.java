@@ -31,6 +31,8 @@ import au.com.dius.pact.provider.junitsupport.IgnoreNoPactsToVerify;
 import au.com.dius.pact.provider.junitsupport.Provider;
 import au.com.dius.pact.provider.junitsupport.State;
 import au.com.dius.pact.provider.junitsupport.loader.PactBroker;
+import au.com.dius.pact.provider.junitsupport.loader.PactBrokerConsumerVersionSelectors;
+import au.com.dius.pact.provider.junitsupport.loader.SelectorBuilder;
 
 @IgnoreNoPactsToVerify
 @Provider("billing-service")
@@ -40,6 +42,15 @@ public class BillingAddressServiceTest {
 
     @ConfigurationInject
     private Meecrowave.Builder config;
+
+    @PactBrokerConsumerVersionSelectors
+    public static SelectorBuilder consumerVersionSelectors() {
+        SelectorBuilder selectorBuilder = new SelectorBuilder()
+            .mainBranch()
+            .deployedOrReleased();
+        ofNullable(System.getenv("BRANCH_NAME")).ifPresent(selectorBuilder::branch);
+        return selectorBuilder;
+    }
 
     @BeforeEach
     public void setUp(PactVerificationContext verificationContext) {
