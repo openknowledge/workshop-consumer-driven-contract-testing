@@ -37,6 +37,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import au.com.dius.pact.consumer.MessagePactBuilder;
+import au.com.dius.pact.consumer.dsl.PactDslJsonBody;
 import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
 import au.com.dius.pact.consumer.junit5.PactTestFor;
 import au.com.dius.pact.consumer.junit5.ProviderType;
@@ -55,7 +56,16 @@ public class BillingAddressRepositoryEventingTest {
         return builder
             .given("Three customers")
             .expectsToReceive("Update for 0815")
-            // TODO Add content
+            .withContent(new PactDslJsonBody()
+                .stringValue("number", "0815")
+                .object("billingAddress")
+                .stringValue("recipient", "Erika Mustermann")
+                .stringValue("city", "45127 Essen")
+                .object("street")
+                .stringValue("name", "II. Hagen")
+                .stringValue("number", "7")
+                .closeObject()
+                .closeObject())
             .toPact(V4Pact.class);
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 open knowledge GmbH
+ * Copyright 2019 - 2026 open knowledge GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,13 @@
  */
 package de.openknowledge.sample.address;
 
+import static jakarta.ws.rs.client.Entity.entity;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static java.util.Optional.ofNullable;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
@@ -64,17 +65,18 @@ public class BillingAddressServiceMessagingTest {
     }
 
     @PactVerifyProvider("Update for 0815")
-    public String updateBillingAddress() throws InterruptedException, ExecutionException, TimeoutException {
+    public String updateBillingAddress() throws InterruptedException, ExecutionException {
         Client client = ClientBuilder.newClient();
         WebTarget target = client.target("http://localhost:" + config.getActivePort() + "/billing-addresses/0815");
         CompletableFuture<InboundSseEvent> futureEvent = new CompletableFuture<>();
         SseEventSource source = SseEventSource.target(target).build();
         source.register(futureEvent::complete);
         source.open();
+        target
+            .request(APPLICATION_JSON)
+            .post(entity(getClass().getResourceAsStream("0816.json"), APPLICATION_JSON_TYPE));
 
-        // TODO POST file 0816.json to trigger event
-
-        return futureEvent.get(5, TimeUnit.SECONDS).readData();
+        return futureEvent.get().readData();
     }
 
     @State("Three customers")
