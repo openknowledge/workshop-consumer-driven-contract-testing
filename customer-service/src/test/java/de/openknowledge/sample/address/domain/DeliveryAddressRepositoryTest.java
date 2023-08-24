@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import au.com.dius.pact.consumer.MockServer;
+import au.com.dius.pact.consumer.dsl.PactDslJsonBody;
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
 import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
 import au.com.dius.pact.consumer.junit5.PactTestFor;
@@ -48,10 +49,17 @@ public class DeliveryAddressRepositoryTest {
         return builder
           .given("Three customers")
             .uponReceiving("GET request for 0815")
-            .method("GET")
             .path("/delivery-addresses/0815")
+            .method("GET")
           .willRespondWith()
             .status(200)
+            .body(new PactDslJsonBody()
+                    .stringValue("recipient", "Max Mustermann")
+                    .stringValue("city", "26122 Oldenburg")
+                    .object("street")
+                        .stringValue("name", "Poststr.")
+                        .stringValue("number", "1")
+                    .closeObject())
             .toPact(V4Pact.class);
     }
 
@@ -63,7 +71,7 @@ public class DeliveryAddressRepositoryTest {
             .path("/delivery-addresses/0817")
             .method("GET")
           .willRespondWith()
-            .status(204)
+            .status(404)
             .toPact(V4Pact.class);
     }
 
@@ -75,6 +83,13 @@ public class DeliveryAddressRepositoryTest {
             .path("/delivery-addresses/0815")
             .method("POST")
             .matchHeader("Content-Type", "application/json.*", "application/json")
+            .body(new PactDslJsonBody()
+                    .stringValue("recipient", "Erika Mustermann")
+                    .stringValue("city", "45127 Essen")
+                    .object("street")
+                        .stringValue("name", "II. Hagen")
+                        .stringValue("number", "7")
+                    .closeObject())
           .willRespondWith()
             .status(200)
             .toPact(V4Pact.class);
@@ -85,10 +100,20 @@ public class DeliveryAddressRepositoryTest {
         return builder
           .given("Three customers")
             .uponReceiving("POST request for 007")
-            .method("POST")
             .path("/delivery-addresses/007")
+            .method("POST")
+            .matchHeader("Content-Type", "application/json.*", "application/json")
+            .body(new PactDslJsonBody()
+                    .stringValue("recipient", "Sherlock Holmes")
+                    .stringValue("city", "London NW1 6XE")
+                    .object("street")
+                        .stringValue("name", "Baker Street")
+                        .stringValue("number", "221B")
+                    .closeObject())
           .willRespondWith()
             .status(400)
+            .matchHeader("Content-Type", "application/problem\\+json.*", "application/problem+json")
+            .body(new PactDslJsonBody().stringMatcher("detail", ".*", "Addresses from UK are not supported for delivery"))
             .toPact(V4Pact.class);
     }
 

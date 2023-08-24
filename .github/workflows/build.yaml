@@ -17,7 +17,7 @@ jobs:
           cache: maven
 
       - name: Build customer-service
-        run: mvn clean package -f customer-service/pom.xml -DskipTests
+        run: mvn clean package -f customer-service/pom.xml
 
       - name: Build billing-service
         run: mvn clean package -f billing-service/pom.xml
