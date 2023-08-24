@@ -16,7 +16,9 @@ pipeline {
         PERFORM_RELEASE = "${env.SNAPSHOT_VERSION.contains('-SNAPSHOT') && env.BRANCH_NAME == 'main' && !env.LAST_COMMIT_MESSAGE.startsWith('update version to ')}"
         RELEASE_VERSION = "${env.SNAPSHOT_VERSION.contains('-SNAPSHOT') ? env.SNAPSHOT_VERSION.substring(0, env.SNAPSHOT_VERSION.lastIndexOf('-SNAPSHOT')) : SNAPSHOT_VERSION}"
         VERSION = "${env.BRANCH_NAME == 'main' && !env.LAST_COMMIT_MESSAGE.startsWith('update version to ') ? env.RELEASE_VERSION : env.SNAPSHOT_VERSION}"
+        PACT_VERSION = "${env.RELEASE_VERSION}+${env.GIT_COMMIT}"
         ROOT_DIRECTORY = "${params.verifyPacts == true && env.BRANCH_NAME == 'main' && env.SNAPSHOT_VERSION.endsWith("-SNAPSHOT") ? 'target/checkout' : '.'}"
+        STAGE = "${env.BRANCH_NAME == 'main' ? 'production' : 'test'}"
     }
 
     triggers {
@@ -71,7 +73,8 @@ pipeline {
             steps {
                 sh """
                     cd ${ROOT_DIRECTORY}
-                    mvn test -DpactBroker.url=http://pact:9292 -Dpact.verifier.publishResults=true -B
+                    mvn test -DpactBroker.url=http://pact:9292 -Dpact.verifier.publishResults=true \
+                             -Dpact.provider.branch=${env.BRANCH_NAME} -Dpact.provider.version=${env.PACT_VERSION} -B
                 """
             }
         }
@@ -128,14 +131,14 @@ pipeline {
         }
         stage ('Deploy') {
             when {
-                expression {
-                    params.verifyPacts == false
-                }
                 anyOf {
                     not {
                         branch 'main'
                     }
                     environment name: 'PERFORM_RELEASE', value: 'true'
+                }
+                expression {
+                    params.verifyPacts == false
                 }
             }
             steps {
@@ -145,6 +148,9 @@ pipeline {
                     } else {
                         sh "sshpass -p 'jenkins' ssh -o 'StrictHostKeyChecking=no' -p 2222 -q jenkins:jenkins@test '[ -f ~/address-validation-service-distribution/bin/meecrowave.sh ] && ~/address-validation-service-distribution/bin/meecrowave.sh stop && rm -rf ~/address-validation-service-distribution/; unzip ~/artifacts/address-validation-service/${env.SNAPSHOT_VERSION}/address-validation-service-meecrowave-distribution.zip -d ~/; nohup ~/address-validation-service-distribution/bin/meecrowave.sh start --http=8084'"
                     }
+                    sh "pact-broker create-or-update-pacticipant --broker-base-url=http://pact:9292 --name=address-validation-service --main-branch=main"
+                    sh "pact-broker create-or-update-version --broker-base-url=http://pact:9292 --pacticipant=address-validation-service --version=${env.PACT_VERSION}"
+                    sh "pact-broker record-deployment --broker-base-url=http://pact:9292 --pacticipant=address-validation-service --environment=${env.STAGE} --version=${env.PACT_VERSION}"
                 }
             }
         }

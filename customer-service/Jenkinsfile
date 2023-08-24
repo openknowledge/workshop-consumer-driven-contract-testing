@@ -12,6 +12,8 @@ pipeline {
         PERFORM_RELEASE = "${env.SNAPSHOT_VERSION.contains('-SNAPSHOT') && env.BRANCH_NAME == 'main' && !env.LAST_COMMIT_MESSAGE.startsWith('update version to ')}"
         RELEASE_VERSION = "${env.SNAPSHOT_VERSION.contains('-SNAPSHOT') ? env.SNAPSHOT_VERSION.substring(0, env.SNAPSHOT_VERSION.lastIndexOf('-SNAPSHOT')) : SNAPSHOT_VERSION}"
         VERSION = "${env.BRANCH_NAME == 'main' && !env.LAST_COMMIT_MESSAGE.startsWith('update version to ') ? env.RELEASE_VERSION : env.SNAPSHOT_VERSION}"
+        PACT_VERSION = "${env.RELEASE_VERSION}+${env.GIT_COMMIT}"
+        STAGE = "${env.BRANCH_NAME == 'main' ? 'production' : 'test'}"
     }
 
     triggers {
@@ -48,7 +50,10 @@ pipeline {
                 }
             }
             steps {
-                sh "mvn test pact:publish -DpactBroker.url=http://pact:9292 -B"
+                sh """
+                    mvn test -B
+                    pact-broker publish target/pacts --broker-base-url=http://pact:9292 --consumer-app-version=${env.PACT_VERSION} --auto-detect-version-properties
+                """
             }
         }
         stage ('Test providers') {
@@ -132,6 +137,9 @@ pipeline {
                     } else {
                         sh "sshpass -p 'jenkins' ssh -o 'StrictHostKeyChecking=no' -p 2222 -q jenkins:jenkins@test '[ -f ~/customer-service-distribution/bin/meecrowave.sh ] && ~/customer-service-distribution/bin/meecrowave.sh stop && rm -rf ~/customer-service-distribution/; unzip ~/artifacts/customer-service/${env.SNAPSHOT_VERSION}/customer-service-meecrowave-distribution.zip -d ~/; nohup ~/customer-service-distribution/bin/meecrowave.sh start --http=8081'"
                     }
+                    sh "pact-broker create-or-update-pacticipant --broker-base-url=http://pact:9292 --name=customer-service --main-branch=main"
+                    sh "pact-broker create-or-update-version --broker-base-url=http://pact:9292 --pacticipant=customer-service --version=${env.PACT_VERSION}"
+                    sh "pact-broker record-deployment --broker-base-url=http://pact:9292 --pacticipant=customer-service --environment=${env.STAGE} --version=${env.PACT_VERSION}"
                 }
             }
         }
