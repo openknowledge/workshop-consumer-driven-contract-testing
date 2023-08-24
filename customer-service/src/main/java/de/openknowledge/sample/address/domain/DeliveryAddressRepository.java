@@ -22,13 +22,12 @@ import java.io.StringReader;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import javax.validation.ValidationException;
-
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
+import jakarta.validation.ValidationException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.MediaType;

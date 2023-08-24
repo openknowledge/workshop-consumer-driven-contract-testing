@@ -1,126 +1,152 @@
 {
-  "provider": {
-    "name": "address-validation-service"
-  },
   "consumer": {
     "name": "delivery-service"
   },
   "interactions": [
     {
       "description": "POST request for Max's address",
-      "request": {
-        "method": "POST",
-        "path": "/valid-addresses",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "city": "26122 Oldenburg",
-          "street": {
-            "number": "1",
-            "name": "Poststrasse"
-          },
-          "recipient": "Max Mustermann"
-        },
-        "matchingRules": {
-          "header": {
-            "Content-Type": {
-              "matchers": [
-                {
-                  "match": "regex",
-                  "regex": "application/json.*"
-                }
-              ],
-              "combine": "AND"
-            }
-          }
-        }
-      },
-      "response": {
-        "status": 200
-      },
+      "key": "a7dd1631",
+      "pending": false,
       "providerStates": [
         {
           "name": "Three customers"
         }
-      ]
-    },
-    {
-      "description": "POST request for Sherlock's address",
+      ],
       "request": {
-        "method": "POST",
-        "path": "/valid-addresses",
-        "headers": {
-          "Content-Type": "application/json"
-        },
         "body": {
-          "city": "London NW1 6XE",
-          "street": {
-            "number": "221B",
-            "name": "Baker Street"
+          "content": {
+            "city": "26122 Oldenburg",
+            "recipient": "Max Mustermann",
+            "street": {
+              "name": "Poststrasse",
+              "number": "1"
+            }
           },
-          "recipient": "Sherlock Holmes"
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json"
+          ]
         },
         "matchingRules": {
           "header": {
             "Content-Type": {
+              "combine": "AND",
               "matchers": [
                 {
                   "match": "regex",
                   "regex": "application/json.*"
                 }
-              ],
-              "combine": "AND"
+              ]
             }
           }
-        }
+        },
+        "method": "POST",
+        "path": "/valid-addresses"
       },
       "response": {
-        "status": 400,
-        "headers": {
-          "Content-Type": "application/problem+json"
-        },
+        "status": 200
+      },
+      "transport": "http",
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "description": "POST request for Sherlock's address",
+      "key": "a0ca8204",
+      "pending": false,
+      "providerStates": [
+        {
+          "name": "Three customers"
+        }
+      ],
+      "request": {
         "body": {
-          "detail": "Addresses from UK are not supported for delivery"
+          "content": {
+            "city": "London NW1 6XE",
+            "recipient": "Sherlock Holmes",
+            "street": {
+              "name": "Baker Street",
+              "number": "221B"
+            }
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json"
+          ]
         },
         "matchingRules": {
           "header": {
             "Content-Type": {
+              "combine": "AND",
               "matchers": [
                 {
                   "match": "regex",
-                  "regex": "application/problem\\+json.*"
+                  "regex": "application/json.*"
                 }
-              ],
-              "combine": "AND"
+              ]
             }
+          }
+        },
+        "method": "POST",
+        "path": "/valid-addresses"
+      },
+      "response": {
+        "body": {
+          "content": {
+            "detail": "Addresses from UK are not supported for delivery"
           },
+          "contentType": "application/problem+json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/problem+json"
+          ]
+        },
+        "matchingRules": {
           "body": {
             "$.detail": {
+              "combine": "AND",
               "matchers": [
                 {
                   "match": "regex",
                   "regex": ".*"
                 }
-              ],
-              "combine": "AND"
+              ]
+            }
+          },
+          "header": {
+            "Content-Type": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "application/problem\\+json.*"
+                }
+              ]
             }
           }
-        }
+        },
+        "status": 400
       },
-      "providerStates": [
-        {
-          "name": "Three customers"
-        }
-      ]
+      "transport": "http",
+      "type": "Synchronous/HTTP"
     }
   ],
   "metadata": {
-    "pactSpecification": {
-      "version": "3.0.0"
-    },
     "pact-jvm": {
-      "version": "4.0.10"
+      "version": "4.6.15"
+    },
+    "pactSpecification": {
+      "version": "4.0"
     }
+  },
+  "provider": {
+    "name": "address-validation-service"
   }
 }
