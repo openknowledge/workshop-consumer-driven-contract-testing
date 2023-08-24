@@ -1,9 +1,20 @@
 #!/usr/bin/env groovy
+
+def computePreviousRevision(releaseVersion) {
+    return Integer.parseInt(releaseVersion.substring(releaseVersion.lastIndexOf(".") + 1)) - 1;
+}
+
+def computePreviousVersion(previousRevision, releaseVersion) {
+    return releaseVersion.substring(0, releaseVersion.lastIndexOf(".")) + "." + previousRevision
+}
+
 pipeline {
     agent any
 
     parameters {
         booleanParam(name: 'verifyPacts', defaultValue: false, description: 'should this job just run to verify pacts from a consumer')
+        booleanParam(name: 'deployOnly', defaultValue: false, description: 'should this job just run to deploy a version')
+        string(name: 'deploymentVersion', defaultValue: 'latest', description: 'which version should be deployed')
     }
 
     options {
@@ -16,13 +27,36 @@ pipeline {
         PERFORM_RELEASE = "${env.SNAPSHOT_VERSION.contains('-SNAPSHOT') && env.BRANCH_NAME == 'main' && !env.LAST_COMMIT_MESSAGE.startsWith('update version to ')}"
         RELEASE_VERSION = "${env.SNAPSHOT_VERSION.contains('-SNAPSHOT') ? env.SNAPSHOT_VERSION.substring(0, env.SNAPSHOT_VERSION.lastIndexOf('-SNAPSHOT')) : SNAPSHOT_VERSION}"
         VERSION = "${env.BRANCH_NAME == 'main' && !env.LAST_COMMIT_MESSAGE.startsWith('update version to ') ? env.RELEASE_VERSION : env.SNAPSHOT_VERSION}"
-        PACT_VERSION = "${env.RELEASE_VERSION}+${env.GIT_COMMIT}"
+        PACT_VERSION = "${env.BRANCH_NAME == 'main' ? env.RELEASE_VERSION : env.RELEASE_VERSION + '+' + env.GIT_COMMIT}"
         ROOT_DIRECTORY = "${params.verifyPacts == true && env.BRANCH_NAME == 'main' && env.SNAPSHOT_VERSION.endsWith("-SNAPSHOT") ? 'target/checkout' : '.'}"
         STAGE = "${env.BRANCH_NAME == 'main' ? 'production' : 'test'}"
+        DEPLOYMENT_VERSION = "${params.deploymentVersion != 'latest' ? params.deploymentVersion : env.VERSION}"
+        PREVIOUS_REVISION = computePreviousRevision(env.RELEASE_VERSION)
+        PREVIOUS_VERSION = computePreviousVersion(env.PREVIOUS_REVISION, env.RELEASE_VERSION)
     }
 
     triggers {
         pollSCM("* * * * *")
+        GenericTrigger(
+            genericRequestVariables: [
+                [key: 'branch', regexpFilter: ''],
+                [key: 'verifyPacts', regexpFilter: ''],
+                [key: 'deployOnly', regexpFilter: ''],
+                [key: 'deploymentVersion', regexpFilter: '']
+            ],
+
+            causeString: 'Triggered by web hook',
+
+            token: 'delivery-service',
+
+            printContributedVariables: true,
+            printPostContent: true,
+
+            silentResponse: false,
+
+            regexpFilterText: '$branch',
+            regexpFilterExpression: ".*${(env.BRANCH_NAME == 'main' ? 'main' : 'develop')}.*"
+        )
     }
 
     stages {
@@ -37,16 +71,17 @@ pipeline {
                         params.verifyPacts == true
                     }
                 }
+                expression {
+                    params.deployOnly == false
+                }
             }
             steps {
                 echo "Building version ${env.VERSION}"
                 script {
                     if (params.verifyPacts == true && env.BRANCH_NAME == 'main' && env.SNAPSHOT_VERSION.endsWith("-SNAPSHOT")) {
-                        int previousRevision = Integer.parseInt(env.RELEASE_VERSION.substring(env.RELEASE_VERSION.lastIndexOf(".") + 1)) - 1
-                        if (previousRevision >= 0) {
-                            previousVersion = RELEASE_VERSION.substring(0, env.RELEASE_VERSION.lastIndexOf(".")) + "." + previousRevision
-                            sh "mvn scm:checkout -DscmVersionType=tag -DscmVersion=${previousVersion}"
-                            echo "Testing against version ${previousVersion}"
+                        if (Integer.parseInt(env.PREVIOUS_REVISION) >= 0) {
+                            sh "mvn scm:checkout -DscmVersionType=tag -DscmVersion=${env.PREVIOUS_VERSION}"
+                            echo "Testing against version ${env.PREVIOUS_VERSION}"
                         }
                     } else if (env.PERFORM_RELEASE.equals('true') && !env.RELEASE_VERSION.equals(env.SNAPSHOT_VERSION)) {
                         sh "mvn versions:set -DnewVersion=${env.RELEASE_VERSION} -B"
@@ -69,17 +104,22 @@ pipeline {
                         params.verifyPacts == true
                     }
                 }
+                expression {
+                    params.deployOnly == false
+                }
             }
             steps {
-                sh """
-                    cd ${ROOT_DIRECTORY}
-                    mvn test -DpactBroker.url=http://pact:9292 -Dpact.verifier.publishResults=true \
-                             -Dpact.provider.branch=${env.BRANCH_NAME} -Dpact.provider.version=${env.PACT_VERSION} -B
-                    pact-broker publish target/pacts --broker-base-url=http://pact:9292 --consumer-app-version=${env.PACT_VERSION} --auto-detect-version-properties
-                """
+                script {
+                    version = Integer.parseInt(env.PREVIOUS_REVISION) >= 0 ? env.PREVIOUS_VERSION : env.PACT_VERSION
+                    sh """
+                        cd ${ROOT_DIRECTORY}
+                        mvn test -DpactBroker.url=http://pact:9292 -Dpact.verifier.publishResults=true \
+                                 -Dpact.provider.branch=${env.BRANCH_NAME} -Dpact.provider.version=${version} -B
+                    """
+                }
             }
         }
-        stage ('Test providers') {
+        stage ('Upload pacts') {
             when {
                 anyOf {
                     not {
@@ -88,11 +128,11 @@ pipeline {
                     environment name: 'PERFORM_RELEASE', value: 'true'
                 }
                 expression {
-                    params.verifyPacts == false
+                    params.verifyPacts == false && params.deployOnly == false
                 }
             }
             steps {
-                build job: "address-validation-service/${env.BRANCH_NAME}", parameters: [booleanParam(name: 'verifyPacts', value: true)]
+                sh "pact-broker publish target/pacts --broker-base-url=http://pact:9292 --consumer-app-version=${env.PACT_VERSION} --auto-detect-version-properties"
             }
         }
         stage ('Package') {
@@ -104,7 +144,7 @@ pipeline {
                     environment name: 'PERFORM_RELEASE', value: 'true'
                 }
                 expression {
-                    params.verifyPacts == false
+                    params.verifyPacts == false && params.deployOnly == false
                 }
             }
             steps {
@@ -120,7 +160,7 @@ pipeline {
                     environment name: 'PERFORM_RELEASE', value: 'true'
                 }
                 expression {
-                    params.verifyPacts == false
+                    params.verifyPacts == false && params.deployOnly == false
                 }
             }
             steps {
@@ -148,11 +188,21 @@ pipeline {
         }
         stage ('Deploy') {
             when {
+                expression {
+                    script {
+                        version = Integer.parseInt(env.PREVIOUS_REVISION) >= 0 ? env.PREVIOUS_VERSION : env.PACT_VERSION
+                        def deploy = sh script: "pact-broker can-i-deploy --pacticipant=delivery-service --version=${version} --to-environment=${env.STAGE} --broker-base-url=http://pact:9292", returnStatus: true
+                        return deploy == 0
+                    }
+                }
                 anyOf {
                     not {
                         branch 'main'
                     }
                     environment name: 'PERFORM_RELEASE', value: 'true'
+                    expression {
+                        params.deployOnly == true
+                    }
                 }
                 expression {
                     params.verifyPacts == false
@@ -160,14 +210,15 @@ pipeline {
             }
             steps {
                 script {
-                    if (env.PERFORM_RELEASE.equals('true') && !env.RELEASE_VERSION.equals(env.SNAPSHOT_VERSION)) {
-                        sh "sshpass -p 'jenkins' ssh -o 'StrictHostKeyChecking=no' -p 2222 -q jenkins:jenkins@prod '[ -f ~/delivery-service-distribution/bin/meecrowave.sh ] && ~/delivery-service-distribution/bin/meecrowave.sh stop && rm -rf ~/delivery-service-distribution/; unzip ~/artifacts/delivery-service/${env.RELEASE_VERSION}/delivery-service-meecrowave-distribution.zip -d ~/; nohup ~/delivery-service-distribution/bin/meecrowave.sh start --http=8083'"
+                    if (env.STAGE == 'production') {
+                        sh "sshpass -p 'jenkins' ssh -o 'StrictHostKeyChecking=no' -p 2222 -q jenkins:jenkins@prod '[ -f ~/delivery-service-distribution/bin/meecrowave.sh ] && ~/delivery-service-distribution/bin/meecrowave.sh stop && rm -rf ~/delivery-service-distribution/; unzip ~/artifacts/delivery-service/${env.DEPLOYMENT_VERSION}/delivery-service-meecrowave-distribution.zip -d ~/; nohup ~/delivery-service-distribution/bin/meecrowave.sh start --http=8083'"
                     } else {
-                        sh "sshpass -p 'jenkins' ssh -o 'StrictHostKeyChecking=no' -p 2222 -q jenkins:jenkins@test '[ -f ~/delivery-service-distribution/bin/meecrowave.sh ] && ~/delivery-service-distribution/bin/meecrowave.sh stop && rm -rf ~/delivery-service-distribution/; unzip ~/artifacts/delivery-service/${env.SNAPSHOT_VERSION}/delivery-service-meecrowave-distribution.zip -d ~/; export JAKARTA_PERSISTENCE_JDBC_URL=jdbc:postgresql://delivery-db-test:5432/postgres; nohup ~/delivery-service-distribution/bin/meecrowave.sh start --http=8083'"
+                        sh "sshpass -p 'jenkins' ssh -o 'StrictHostKeyChecking=no' -p 2222 -q jenkins:jenkins@test '[ -f ~/delivery-service-distribution/bin/meecrowave.sh ] && ~/delivery-service-distribution/bin/meecrowave.sh stop && rm -rf ~/delivery-service-distribution/; unzip ~/artifacts/delivery-service/${env.DEPLOYMENT_VERSION}/delivery-service-meecrowave-distribution.zip -d ~/; export JAKARTA_PERSISTENCE_JDBC_URL=jdbc:postgresql://delivery-db-test:5432/postgres; nohup ~/delivery-service-distribution/bin/meecrowave.sh start --http=8083'"
                     }
+                    version = Integer.parseInt(env.PREVIOUS_REVISION) >= 0 ? env.PREVIOUS_VERSION : env.PACT_VERSION
                     sh "pact-broker create-or-update-pacticipant --broker-base-url=http://pact:9292 --name=delivery-service --main-branch=main"
-                    sh "pact-broker create-or-update-version --broker-base-url=http://pact:9292 --pacticipant=delivery-service --version=${env.PACT_VERSION}"
-                    sh "pact-broker record-deployment --broker-base-url=http://pact:9292 --pacticipant=delivery-service --environment=${env.STAGE} --version=${env.PACT_VERSION}"
+                    sh "pact-broker create-or-update-version --broker-base-url=http://pact:9292 --pacticipant=delivery-service --version=${version}"
+                    sh "pact-broker record-deployment --broker-base-url=http://pact:9292 --pacticipant=delivery-service --environment=${env.STAGE} --version=${version}"
                 }
             }
         }

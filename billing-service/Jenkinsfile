@@ -1,4 +1,13 @@
 #!/usr/bin/env groovy
+
+def computePreviousRevision(releaseVersion) {
+    return Integer.parseInt(releaseVersion.substring(releaseVersion.lastIndexOf(".") + 1)) - 1;
+}
+
+def computePreviousVersion(previousRevision, releaseVersion) {
+    return releaseVersion.substring(0, releaseVersion.lastIndexOf(".")) + "." + previousRevision
+}
+
 pipeline {
     agent any
 
@@ -16,13 +25,33 @@ pipeline {
         PERFORM_RELEASE = "${env.SNAPSHOT_VERSION.contains('-SNAPSHOT') && env.BRANCH_NAME == 'main' && !env.LAST_COMMIT_MESSAGE.startsWith('update version to ')}"
         RELEASE_VERSION = "${env.SNAPSHOT_VERSION.contains('-SNAPSHOT') ? env.SNAPSHOT_VERSION.substring(0, env.SNAPSHOT_VERSION.lastIndexOf('-SNAPSHOT')) : SNAPSHOT_VERSION}"
         VERSION = "${env.BRANCH_NAME == 'main' && !env.LAST_COMMIT_MESSAGE.startsWith('update version to ') ? env.RELEASE_VERSION : env.SNAPSHOT_VERSION}"
-        PACT_VERSION = "${env.RELEASE_VERSION}+${env.GIT_COMMIT}"
+        PACT_VERSION = "${env.BRANCH_NAME == 'main' ? env.RELEASE_VERSION : env.RELEASE_VERSION + '+' + env.GIT_COMMIT}"
         ROOT_DIRECTORY = "${params.verifyPacts == true && env.BRANCH_NAME == 'main' && env.SNAPSHOT_VERSION.endsWith("-SNAPSHOT") ? 'target/checkout' : '.'}"
         STAGE = "${env.BRANCH_NAME == 'main' ? 'production' : 'test'}"
+        PREVIOUS_REVISION = computePreviousRevision(env.RELEASE_VERSION)
+        PREVIOUS_VERSION = computePreviousVersion(env.PREVIOUS_REVISION, env.RELEASE_VERSION)
     }
 
     triggers {
         pollSCM("* * * * *")
+        GenericTrigger(
+            genericRequestVariables: [
+                [key: 'branch', regexpFilter: ''],
+                [key: 'verifyPacts', regexpFilter: '']
+            ],
+
+            causeString: 'Triggered by web hook',
+
+            token: 'billing-service',
+
+            printContributedVariables: true,
+            printPostContent: true,
+
+            silentResponse: false,
+
+            regexpFilterText: '$branch',
+            regexpFilterExpression: ".*${(env.BRANCH_NAME == 'main' ? 'main' : 'develop')}.*"
+        )
     }
 
     stages {
@@ -42,11 +71,9 @@ pipeline {
                 echo "Building version ${env.VERSION}"
                 script {
                     if (params.verifyPacts == true && env.BRANCH_NAME == 'main' && env.SNAPSHOT_VERSION.endsWith("-SNAPSHOT")) {
-                        int previousRevision = Integer.parseInt(env.RELEASE_VERSION.substring(env.RELEASE_VERSION.lastIndexOf(".") + 1)) - 1
-                        if (previousRevision >= 0) {
-                            previousVersion = RELEASE_VERSION.substring(0, env.RELEASE_VERSION.lastIndexOf(".")) + "." + previousRevision
-                            sh "mvn scm:checkout -DscmVersionType=tag -DscmVersion=${previousVersion}"
-                            echo "Testing against version ${previousVersion}"
+                        if (Integer.parseInt(env.PREVIOUS_REVISION) >= 0) {
+                            sh "mvn scm:checkout -DscmVersionType=tag -DscmVersion=${env.PREVIOUS_VERSION}"
+                            echo "Testing against version ${env.PREVIOUS_VERSION}"
                         }
                     } else if (env.PERFORM_RELEASE.equals('true') && !env.RELEASE_VERSION.equals(env.SNAPSHOT_VERSION)) {
                         sh "mvn versions:set -DnewVersion=${env.RELEASE_VERSION} -B"
@@ -71,11 +98,14 @@ pipeline {
                 }
             }
             steps {
-                sh """
-                    cd ${ROOT_DIRECTORY}
-                    mvn test -DpactBroker.url=http://pact:9292 -Dpact.verifier.publishResults=true \
-                             -Dpact.provider.branch=${env.BRANCH_NAME} -Dpact.provider.version=${env.PACT_VERSION} -B
-                """
+                script {
+                    version = Integer.parseInt(env.PREVIOUS_REVISION) >= 0 ? env.PREVIOUS_VERSION : env.PACT_VERSION
+                    sh """
+                        cd ${ROOT_DIRECTORY}
+                        mvn test -DpactBroker.url=http://pact:9292 -Dpact.verifier.publishResults=true \
+                                 -Dpact.provider.branch=${env.BRANCH_NAME} -Dpact.provider.version=${version} -B
+                    """
+                }
             }
         }
         stage ('Package') {

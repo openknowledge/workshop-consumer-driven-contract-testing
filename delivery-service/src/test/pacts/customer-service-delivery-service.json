@@ -49,6 +49,7 @@
         },
         "status": 200
       },
+      "transport": "http",
       "type": "Synchronous/HTTP"
     },
     {
@@ -67,6 +68,7 @@
       "response": {
         "status": 404
       },
+      "transport": "http",
       "type": "Synchronous/HTTP"
     },
     {
@@ -151,6 +153,7 @@
         },
         "status": 400
       },
+      "transport": "http",
       "type": "Synchronous/HTTP"
     },
     {
@@ -199,12 +202,13 @@
       "response": {
         "status": 200
       },
+      "transport": "http",
       "type": "Synchronous/HTTP"
     }
   ],
   "metadata": {
     "pact-jvm": {
-      "version": "4.3.5"
+      "version": "4.6.19"
     },
     "pactSpecification": {
       "version": "4.0"
