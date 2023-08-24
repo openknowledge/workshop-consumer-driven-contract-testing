@@ -46,6 +46,8 @@ import au.com.dius.pact.provider.junitsupport.Provider;
 import au.com.dius.pact.provider.junitsupport.State;
 import au.com.dius.pact.provider.junitsupport.StateChangeAction;
 import au.com.dius.pact.provider.junitsupport.loader.PactBroker;
+import au.com.dius.pact.provider.junitsupport.loader.PactBrokerConsumerVersionSelectors;
+import au.com.dius.pact.provider.junitsupport.loader.SelectorBuilder;
 import de.openknowledge.sample.address.domain.AddressValidationService;
 import rocks.limburg.cdimock.MockitoBeans;
 
@@ -65,6 +67,15 @@ public class DeliveryAddressServiceTest {
     private UserTransaction transaction;
     @Inject @Any
     private EntityManager entityManager;
+
+    @PactBrokerConsumerVersionSelectors
+    public static SelectorBuilder consumerVersionSelectors() {
+        SelectorBuilder selectorBuilder = new SelectorBuilder()
+            .mainBranch()
+            .deployedOrReleased();
+        ofNullable(System.getenv("BRANCH_NAME")).ifPresent(selectorBuilder::branch);
+        return selectorBuilder;
+    }
 
     @BeforeAll
     public static void beforeAll() throws Exception {
