@@ -68,5 +68,4 @@ public class CityName {
             return name.toString();
         }
     }
-
 }

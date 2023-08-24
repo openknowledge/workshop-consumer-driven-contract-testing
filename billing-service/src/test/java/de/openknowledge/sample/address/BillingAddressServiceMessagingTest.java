@@ -17,6 +17,17 @@ package de.openknowledge.sample.address;
 
 import static java.util.Optional.ofNullable;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.sse.InboundSseEvent;
+import jakarta.ws.rs.sse.SseEventSource;
+
 import org.apache.meecrowave.Meecrowave;
 import org.apache.meecrowave.junit5.MeecrowaveConfig;
 import org.apache.meecrowave.testing.ConfigurationInject;
@@ -24,7 +35,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import au.com.dius.pact.provider.junit5.HttpTestTarget;
+import au.com.dius.pact.provider.PactVerifyProvider;
+import au.com.dius.pact.provider.junit5.MessageTestTarget;
 import au.com.dius.pact.provider.junit5.PactVerificationContext;
 import au.com.dius.pact.provider.junit5.PactVerificationInvocationContextProvider;
 import au.com.dius.pact.provider.junitsupport.Provider;
@@ -32,9 +44,9 @@ import au.com.dius.pact.provider.junitsupport.State;
 import au.com.dius.pact.provider.junitsupport.loader.PactFolder;
 
 @Provider("billing-service")
-@PactFolder("src/test/pacts/rest")
+@PactFolder("src/test/pacts/messaging")
 @MeecrowaveConfig
-public class BillingAddressServiceTest {
+public class BillingAddressServiceMessagingTest {
 
     @ConfigurationInject
     private Meecrowave.Builder config;
@@ -42,13 +54,27 @@ public class BillingAddressServiceTest {
     @BeforeEach
     public void setUp(PactVerificationContext verificationContext) {
         ofNullable(verificationContext)
-            .ifPresent(context -> context.setTarget(new HttpTestTarget("localhost", config.getHttpPort(), "/")));
+            .ifPresent(context -> context.setTarget(new MessageTestTarget()));
     }
 
     @TestTemplate
     @ExtendWith(PactVerificationInvocationContextProvider.class)
     void pactVerificationTestTemplate(PactVerificationContext context) {
         ofNullable(context).ifPresent(PactVerificationContext::verifyInteraction);
+    }
+
+    @PactVerifyProvider("Update for 0815")
+    public String updateBillingAddress() throws InterruptedException, ExecutionException, TimeoutException {
+        Client client = ClientBuilder.newClient();
+        WebTarget target = client.target("http://localhost:" + config.getActivePort() + "/billing-addresses/0815");
+        CompletableFuture<InboundSseEvent> futureEvent = new CompletableFuture<>();
+        SseEventSource source = SseEventSource.target(target).build();
+        source.register(futureEvent::complete);
+        source.open();
+
+        // TODO POST file 0816.json to trigger event
+
+        return futureEvent.get(5, TimeUnit.SECONDS).readData();
     }
 
     @State("Three customers")

@@ -80,6 +80,11 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.9</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-rs-sse</artifactId>
+            <version>4.1.4</version>
+        </dependency>
 
         <!-- Test Dependencies -->
         <dependency>

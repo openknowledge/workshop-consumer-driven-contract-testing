@@ -76,5 +76,4 @@ public class ZipCode {
             return zip.toString();
         }
     }
-
 }

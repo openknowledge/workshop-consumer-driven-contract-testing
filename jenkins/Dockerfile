@@ -1,4 +1,4 @@
-FROM jenkins/jenkins:2.479.3-jdk21
+FROM jenkins/jenkins:2.492.1-jdk21
 
 RUN jenkins-plugin-cli -p git workflow-aggregator pipeline-utility-steps generic-webhook-trigger pipeline-stage-view
 

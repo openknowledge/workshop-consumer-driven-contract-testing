@@ -50,8 +50,8 @@ public class AddressResource {
 
     private static final Logger LOGGER = Logger.getLogger(AddressResource.class.getSimpleName());
     private static final String PROBLEM_JSON_TYPE = "application/problem+json";
-    private static final String PROBLEM_JSON
-        = "{\"type\": \"%s\", \"title\": \"%s\", \"status\": %d, \"detail\": \"%s\", \"instance\": \"%s\"}";
+    private static final String PROBLEM_JSON =
+        "{\"type\": \"%s\", \"title\": \"%s\", \"status\": %d, \"detail\": \"%s\", \"instance\": \"%s\"}";
 
     @Inject
     private AddressRepository addressesRepository;
@@ -75,24 +75,18 @@ public class AddressResource {
             List<City> suggestions = addressesRepository.findSuggestions(address.getCity());
             LOGGER.fine(suggestions.size() + " suggestions found: " + suggestions);
             if (suggestions.size() == 1) {
-                return Response.status(Response.Status.BAD_REQUEST).type(PROBLEM_JSON_TYPE)
-                        .entity(String.format(PROBLEM_JSON, type, "invalid city",
-                                Response.Status.BAD_REQUEST.getStatusCode(),
-                                "Did you mean " + suggestions.iterator().next() + "?", instance))
-                        .build();
+                return Response.status(Response.Status.BAD_REQUEST).type(PROBLEM_JSON_TYPE).entity(
+                    String.format(PROBLEM_JSON, type, "invalid city", Response.Status.BAD_REQUEST.getStatusCode(),
+                        "Did you mean " + suggestions.iterator().next() + "?", instance)).build();
             } else if (!suggestions.isEmpty()) {
-                return Response.status(Response.Status.BAD_REQUEST).type(PROBLEM_JSON_TYPE)
-                        .entity(String.format(PROBLEM_JSON, type, "invalid city",
-                                Response.Status.BAD_REQUEST.getStatusCode(),
-                                "Did you mean one of "
-                                        + suggestions.stream().map(Object::toString).collect(joining(", ")) + "?",
-                                instance))
-                        .build();
+                return Response.status(Response.Status.BAD_REQUEST).type(PROBLEM_JSON_TYPE).entity(
+                    String.format(PROBLEM_JSON, type, "invalid city", Response.Status.BAD_REQUEST.getStatusCode(),
+                        "Did you mean one of " + suggestions.stream().map(Object::toString).collect(joining(", ")) + "?",
+                        instance)).build();
             } else {
-                return Response.status(Response.Status.BAD_REQUEST).type(PROBLEM_JSON_TYPE)
-                        .entity(String.format(PROBLEM_JSON, type, "invalid city",
-                                Response.Status.BAD_REQUEST.getStatusCode(), "no matching city found", instance))
-                        .build();
+                return Response.status(Response.Status.BAD_REQUEST).type(PROBLEM_JSON_TYPE).entity(
+                    String.format(PROBLEM_JSON, type, "invalid city", Response.Status.BAD_REQUEST.getStatusCode(), "no matching city found",
+                        instance)).build();
             }
         }
     }

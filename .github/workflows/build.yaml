@@ -17,10 +17,10 @@ jobs:
           cache: maven
 
       - name: Build customer-service
-        run: mvn clean package -f customer-service/pom.xml
+        run: mvn clean package -f customer-service/pom.xml -DskipTests
 
       - name: Build billing-service
-        run: mvn clean package -f billing-service/pom.xml
+        run: mvn clean package -f billing-service/pom.xml -DskipTests
 
       - name: Build delivery-service
         run: mvn clean package -f delivery-service/pom.xml

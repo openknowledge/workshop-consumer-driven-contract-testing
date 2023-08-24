@@ -39,8 +39,8 @@ public class AddressRepository {
     @PostConstruct
     public void initialize() {
         cities = new HashSet<>();
-        try (BufferedReader cityStream
-            = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/plz.txt")))) {
+        try (BufferedReader cityStream =
+            new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/plz.txt")))) {
 
             for (String line = cityStream.readLine(); line != null; line = cityStream.readLine()) {
                 City city = new City(line);

@@ -71,7 +71,5 @@ public class CustomerNumber {
         public String adaptToJson(CustomerNumber number) throws Exception {
             return number.toString();
         }
-
     }
-
 }

@@ -1,0 +1,132 @@
+{
+  "consumer": {
+    "name": "customer-service"
+  },
+  "interactions": [
+    {
+      "description": "GET request for 0815",
+      "key": "a1a45ee7",
+      "pending": false,
+      "providerStates": [
+        {
+          "name": "Three customers"
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/billing-addresses/0815"
+      },
+      "response": {
+        "body": {
+          "content": {
+            "city": "26122 Oldenburg",
+            "recipient": "Max Mustermann",
+            "street": {
+              "name": "Poststr.",
+              "number": "1"
+            }
+          },
+          "contentType": "application/json; charset=UTF-8",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json; charset=UTF-8"
+          ]
+        },
+        "matchingRules": {
+          "header": {
+            "Content-Type": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "application/json(;\\s?charset=[\\w\\-]+)?"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      },
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "description": "GET request for 0817",
+      "key": "a1a45efd",
+      "pending": false,
+      "providerStates": [
+        {
+          "name": "Three customers"
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/billing-addresses/0817"
+      },
+      "response": {
+        "status": 404
+      },
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "description": "POST request for 0815",
+      "key": "4790c919",
+      "pending": false,
+      "providerStates": [
+        {
+          "name": "Three customers"
+        }
+      ],
+      "request": {
+        "body": {
+          "content": {
+            "city": "45127 Essen",
+            "recipient": "Erika Mustermann",
+            "street": {
+              "name": "II. Hagen",
+              "number": "7"
+            }
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json"
+          ]
+        },
+        "matchingRules": {
+          "header": {
+            "Content-Type": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "application/json.*"
+                }
+              ]
+            }
+          }
+        },
+        "method": "POST",
+        "path": "/billing-addresses/0815"
+      },
+      "response": {
+        "status": 200
+      },
+      "type": "Synchronous/HTTP"
+    }
+  ],
+  "metadata": {
+    "pact-jvm": {
+      "version": "4.3.5"
+    },
+    "pactSpecification": {
+      "version": "4.0"
+    }
+  },
+  "provider": {
+    "name": "billing-service"
+  }
+}

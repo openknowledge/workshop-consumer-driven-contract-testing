@@ -183,7 +183,6 @@ public class CustomerServiceTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
-
     @Test
     public void setDeliveryAddressOfExistingCustomer() {
         Response response = ClientBuilder

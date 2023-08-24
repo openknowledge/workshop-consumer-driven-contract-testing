@@ -47,11 +47,11 @@ public class DeliveryAddressRepositoryTest {
     @Pact(consumer = "customer-service")
     public V4Pact getMax(PactDslWithProvider builder) throws IOException {
         return builder
-          .given("Three customers")
+            .given("Three customers")
             .uponReceiving("GET request for 0815")
             .path("/delivery-addresses/0815")
             .method("GET")
-          .willRespondWith()
+            .willRespondWith()
             .status(200)
             .body(new PactDslJsonBody()
                     .stringValue("recipient", "Max Mustermann")
@@ -66,11 +66,11 @@ public class DeliveryAddressRepositoryTest {
     @Pact(consumer = "customer-service")
     public V4Pact dontGetMissing(PactDslWithProvider builder) throws IOException {
         return builder
-          .given("Three customers")
+            .given("Three customers")
             .uponReceiving("GET request for 0817")
             .path("/delivery-addresses/0817")
             .method("GET")
-          .willRespondWith()
+            .willRespondWith()
             .status(404)
             .toPact(V4Pact.class);
     }
@@ -78,19 +78,19 @@ public class DeliveryAddressRepositoryTest {
     @Pact(consumer = "customer-service")
     public V4Pact updateMax(PactDslWithProvider builder) throws IOException {
         return builder
-          .given("Three customers")
+            .given("Three customers")
             .uponReceiving("POST request for 0815")
             .path("/delivery-addresses/0815")
             .method("POST")
             .matchHeader("Content-Type", "application/json.*", "application/json")
             .body(new PactDslJsonBody()
-                    .stringValue("recipient", "Erika Mustermann")
-                    .stringValue("city", "45127 Essen")
-                    .object("street")
-                        .stringValue("name", "II. Hagen")
-                        .stringValue("number", "7")
-                    .closeObject())
-          .willRespondWith()
+                .stringValue("recipient", "Erika Mustermann")
+                .stringValue("city", "45127 Essen")
+                .object("street")
+                .stringValue("name", "II. Hagen")
+                .stringValue("number", "7")
+                .closeObject())
+            .willRespondWith()
             .status(200)
             .toPact(V4Pact.class);
     }
@@ -98,19 +98,19 @@ public class DeliveryAddressRepositoryTest {
     @Pact(consumer = "customer-service")
     public V4Pact dontUpdateSherlock(PactDslWithProvider builder) throws IOException {
         return builder
-          .given("Three customers")
+            .given("Three customers")
             .uponReceiving("POST request for 007")
             .path("/delivery-addresses/007")
             .method("POST")
             .matchHeader("Content-Type", "application/json.*", "application/json")
             .body(new PactDslJsonBody()
-                    .stringValue("recipient", "Sherlock Holmes")
-                    .stringValue("city", "London NW1 6XE")
-                    .object("street")
-                        .stringValue("name", "Baker Street")
-                        .stringValue("number", "221B")
-                    .closeObject())
-          .willRespondWith()
+                .stringValue("recipient", "Sherlock Holmes")
+                .stringValue("city", "London NW1 6XE")
+                .object("street")
+                .stringValue("name", "Baker Street")
+                .stringValue("number", "221B")
+                .closeObject())
+            .willRespondWith()
             .status(400)
             .matchHeader("Content-Type", "application/problem\\+json.*", "application/problem+json")
             .body(new PactDslJsonBody().stringMatcher("detail", ".*", "Addresses from UK are not supported for delivery"))

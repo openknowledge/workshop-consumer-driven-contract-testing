@@ -39,6 +39,10 @@ public class Address {
         setCity(city);
     }
 
+    public static Builder of(String recipient) {
+        return new Builder(new Recipient(recipient));
+    }
+
     public Recipient getRecipient() {
         return recipient;
     }
@@ -74,10 +78,6 @@ public class Address {
         }
         Address address = (Address)object;
         return recipient.equals(recipient) && Objects.equals(street, address.street) && Objects.equals(city, address.city);
-    }
-
-    public static Builder of(String recipient) {
-        return new Builder(new Recipient(recipient));
     }
 
     public static class Builder {

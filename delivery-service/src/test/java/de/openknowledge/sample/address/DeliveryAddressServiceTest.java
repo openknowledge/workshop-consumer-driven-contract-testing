@@ -61,13 +61,14 @@ public class DeliveryAddressServiceTest {
     private AddressValidationService addressValidationService;
     @Inject
     private UserTransaction transaction;
-    @Inject @Any
+    @Inject
+    @Any
     private EntityManager entityManager;
 
     @BeforeAll
     public static void beforeAll() throws Exception {
         UserTransaction ut = CDI.current().select(UserTransaction.class).get();
-        EntityManager em = CDI.current().select(EntityManager.class, new AnnotationLiteral<Any>() {}).get();
+        EntityManager em = CDI.current().select(EntityManager.class, new AnnotationLiteral<Any>() { }).get();
         ut.begin();
         executeWith(em).script("sql/create.sql");
         ut.commit();

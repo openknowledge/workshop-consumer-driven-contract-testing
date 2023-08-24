@@ -35,13 +35,13 @@ public class ValidationExceptionHandler implements ExceptionMapper<ValidationExc
     @Override
     public Response toResponse(ValidationException exception) {
         return Response.status(Response.Status.BAD_REQUEST)
-                .type(PROBLEM_JSON_TYPE)
-                .entity(String.format(
-                        PROBLEM_JSON,
-                        uri.getBaseUri().resolve("/errors/invalid-" + uri.getPathSegments().get(uri.getPathSegments().size() - 1)),
-                        "bad request", Response.Status.BAD_REQUEST.getStatusCode(),
-                        exception.getMessage(),
-                        uri.getAbsolutePath().toString()))
-                .build();
+            .type(PROBLEM_JSON_TYPE)
+            .entity(String.format(
+                PROBLEM_JSON,
+                uri.getBaseUri().resolve("/errors/invalid-" + uri.getPathSegments().get(uri.getPathSegments().size() - 1)),
+                "bad request", Response.Status.BAD_REQUEST.getStatusCode(),
+                exception.getMessage(),
+                uri.getAbsolutePath().toString()))
+            .build();
     }
 }
