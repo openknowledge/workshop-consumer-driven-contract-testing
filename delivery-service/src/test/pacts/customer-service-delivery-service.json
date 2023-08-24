@@ -1,52 +1,65 @@
 {
-  "provider": {
-    "name": "delivery-service"
-  },
   "consumer": {
     "name": "customer-service"
   },
   "interactions": [
     {
       "description": "GET request for 0815",
+      "key": "a1a45ee7",
+      "pending": false,
+      "providerStates": [
+        {
+          "name": "Three customers"
+        }
+      ],
       "request": {
         "method": "GET",
         "path": "/delivery-addresses/0815"
       },
       "response": {
-        "status": 200,
-        "headers": {
-          "Content-Type": "application/json; charset=UTF-8"
-        },
         "body": {
-          "city": "26122 Oldenburg",
-          "street": {
-            "number": "1",
-            "name": "Poststr."
+          "content": {
+            "city": "26122 Oldenburg",
+            "recipient": "Max Mustermann",
+            "street": {
+              "name": "Poststr.",
+              "number": "1"
+            }
           },
-          "recipient": "Max Mustermann"
+          "contentType": "application/json; charset=UTF-8",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json; charset=UTF-8"
+          ]
         },
         "matchingRules": {
           "header": {
             "Content-Type": {
+              "combine": "AND",
               "matchers": [
                 {
                   "match": "regex",
                   "regex": "application/json(;\\s?charset=[\\w\\-]+)?"
                 }
-              ],
-              "combine": "AND"
+              ]
             }
           }
-        }
+        },
+        "status": 200
       },
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "description": "GET request for 0817",
+      "key": "a1a45efd",
+      "pending": false,
       "providerStates": [
         {
           "name": "Three customers"
         }
-      ]
-    },
-    {
-      "description": "GET request for 0817",
+      ],
       "request": {
         "method": "GET",
         "path": "/delivery-addresses/0817"
@@ -54,127 +67,150 @@
       "response": {
         "status": 404
       },
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "description": "POST request for 007",
+      "key": "c38dcaa2",
+      "pending": false,
       "providerStates": [
         {
           "name": "Three customers"
         }
-      ]
-    },
-    {
-      "description": "POST request for 007",
+      ],
       "request": {
-        "method": "POST",
-        "path": "/delivery-addresses/007",
-        "headers": {
-          "Content-Type": "application/json"
-        },
         "body": {
-          "city": "London NW1 6XE",
-          "street": {
-            "number": "221B",
-            "name": "Baker Street"
+          "content": {
+            "city": "London NW1 6XE",
+            "recipient": "Sherlock Holmes",
+            "street": {
+              "name": "Baker Street",
+              "number": "221B"
+            }
           },
-          "recipient": "Sherlock Holmes"
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json"
+          ]
         },
         "matchingRules": {
           "header": {
             "Content-Type": {
+              "combine": "AND",
               "matchers": [
                 {
                   "match": "regex",
                   "regex": "application/json.*"
                 }
-              ],
-              "combine": "AND"
+              ]
             }
           }
-        }
+        },
+        "method": "POST",
+        "path": "/delivery-addresses/007"
       },
       "response": {
-        "status": 400,
-        "headers": {
-          "Content-Type": "application/problem+json"
-        },
         "body": {
-          "detail": "Addresses from UK are not supported for delivery"
+          "content": {
+            "detail": "Addresses from UK are not supported for delivery"
+          },
+          "contentType": "application/problem+json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/problem+json"
+          ]
         },
         "matchingRules": {
-          "header": {
-            "Content-Type": {
-              "matchers": [
-                {
-                  "match": "regex",
-                  "regex": "application/problem\\+json.*"
-                }
-              ],
-              "combine": "AND"
-            }
-          },
           "body": {
             "$.detail": {
+              "combine": "AND",
               "matchers": [
                 {
                   "match": "regex",
                   "regex": ".*"
                 }
-              ],
-              "combine": "AND"
+              ]
+            }
+          },
+          "header": {
+            "Content-Type": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "application/problem\\+json.*"
+                }
+              ]
             }
           }
-        }
+        },
+        "status": 400
       },
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "description": "POST request for 0815",
+      "key": "4790c919",
+      "pending": false,
       "providerStates": [
         {
           "name": "Three customers"
         }
-      ]
-    },
-    {
-      "description": "POST request for 0815",
+      ],
       "request": {
-        "method": "POST",
-        "path": "/delivery-addresses/0815",
-        "headers": {
-          "Content-Type": "application/json"
-        },
         "body": {
-          "city": "45127 Essen",
-          "street": {
-            "number": "7",
-            "name": "II. Hagen"
+          "content": {
+            "city": "45127 Essen",
+            "recipient": "Erika Mustermann",
+            "street": {
+              "name": "II. Hagen",
+              "number": "7"
+            }
           },
-          "recipient": "Erika Mustermann"
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json"
+          ]
         },
         "matchingRules": {
           "header": {
             "Content-Type": {
+              "combine": "AND",
               "matchers": [
                 {
                   "match": "regex",
                   "regex": "application/json.*"
                 }
-              ],
-              "combine": "AND"
+              ]
             }
           }
-        }
+        },
+        "method": "POST",
+        "path": "/delivery-addresses/0815"
       },
       "response": {
         "status": 200
       },
-      "providerStates": [
-        {
-          "name": "Three customers"
-        }
-      ]
+      "type": "Synchronous/HTTP"
     }
   ],
   "metadata": {
-    "pactSpecification": {
-      "version": "3.0.0"
-    },
     "pact-jvm": {
-      "version": "4.1.7"
+      "version": "4.3.5"
+    },
+    "pactSpecification": {
+      "version": "4.0"
     }
+  },
+  "provider": {
+    "name": "delivery-service"
   }
 }

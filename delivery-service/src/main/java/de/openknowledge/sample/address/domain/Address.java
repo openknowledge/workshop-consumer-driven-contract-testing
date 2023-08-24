@@ -15,18 +15,38 @@
  */
 package de.openknowledge.sample.address.domain;
 
-import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.Validate.notNull;
-
-import java.util.Objects;
 
 import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.AttributeOverrides;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 
+@Entity
+@Table(name = "ADDRESSES")
 public class Address {
+
+    @EmbeddedId
+    CustomerNumber id;
+    @Embedded
     private Recipient recipient;
+    @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name = "name.name", column = @Column(name = "STREET")),
+        @AttributeOverride(name = "number.number", column = @Column(name = "HOUSE_NUMBER")),
+    })
     private Street street;
+    @Embedded
     private City city;
+
+    protected Address() {
+        // for JPA
+    }
 
     @JsonbCreator
     public Address(@JsonbProperty("recipient") Recipient recipient) {
@@ -57,50 +77,5 @@ public class Address {
 
     public void setCity(City city) {
         this.city = city;
-    }
-
-    @Override
-    public int hashCode() {
-        return recipient.hashCode() + ofNullable(street).map(Object::hashCode).orElse(0) + ofNullable(city).map(Object::hashCode).orElse(0);
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-        if (object == null || !getClass().equals(object.getClass())) {
-            return false;
-        }
-        Address address = (Address)object;
-        return recipient.equals(recipient) && Objects.equals(street, address.street) && Objects.equals(city, address.city);
-    }
-
-    public static Builder of(String recipient) {
-        return new Builder(new Recipient(recipient));
-    }
-
-    public static class Builder {
-
-        private Address address;
-
-        private Builder(Recipient recipient) {
-            address = new Address(recipient);
-        }
-
-        public Builder atStreet(String name) {
-            AddressLine addressLine = new AddressLine(name);
-            address.setStreet(new Street(addressLine.getStreetName(), addressLine.getHouseNumber()));
-            return this;
-        }
-
-        public Builder inCity(String city) {
-            address.setCity(new City(city));
-            return this;
-        }
-
-        public Address build() {
-            return address;
-        }
     }
 }

@@ -17,16 +17,16 @@ jobs:
           cache: maven
 
       - name: Build customer-service
-        run: mvn clean package -f customer-service/pom.xml -Dservice.name=customer-service
+        run: mvn clean package -f customer-service/pom.xml
 
       - name: Build billing-service
-        run: mvn clean package -f billing-service/pom.xml -Dservice.name=billing-service
+        run: mvn clean package -f billing-service/pom.xml
 
       - name: Build delivery-service
-        run: mvn clean package -f delivery-service/pom.xml -Dservice.name=delivery-service
+        run: mvn clean package -f delivery-service/pom.xml
 
       - name: Build address-validation-service
-        run: mvn clean package -f address-validation-service/pom.xml -Dservice.name=address-validation-service
+        run: mvn clean package -f address-validation-service/pom.xml
 
       - name: Build with Docker
         run: docker compose build
