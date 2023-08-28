@@ -34,14 +34,14 @@ kubectl apply -k ./deployment/
 Once the cluster and the services are established
 (this will take a while), you can access the services with the following urls:
 
-* [Pact Broker](https://localhost:30050/)
-* [Gogs (Git)](https://localhost:30060/)
-* [Jenkins](https://localhost:30070/)
+* [Pact Broker](http://localhost:30050/)
+* [Gogs (Git)](http://localhost:30060/)
+* [Jenkins](http://localhost:30070/)
 
 ## Removing the cluster
 
 To remove the cluster, execute the following command:
 
 ```shell
-kind  delete cluster -n workshop-cdc-cluster
+kind delete cluster -n workshop-cdc-cluster
 ```
