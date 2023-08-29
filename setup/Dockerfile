@@ -1,5 +1,5 @@
-FROM bash:5.2.15
+FROM curlimages/curl:8.2.1
 
 COPY setup.sh /
 
-CMD ["bash", "/setup.sh"]
+CMD ["sh", "/setup.sh"]
