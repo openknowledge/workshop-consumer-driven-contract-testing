@@ -48,3 +48,6 @@ git branch -D main
 git checkout -b main
 git push --force --set-upstream origin main
 echo "Code to repository 'customer-service' pushed."
+
+cd /jenkins
+./create-jobs.sh
