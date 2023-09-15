@@ -1,0 +1,16 @@
+de/openknowledge/sample/address/domain/Street.class
+de/openknowledge/sample/address/domain/AddressRepository.class
+de/openknowledge/sample/address/domain/Address.class
+de/openknowledge/sample/address/domain/StreetName$Adapter.class
+de/openknowledge/sample/address/domain/CityName$Adapter.class
+de/openknowledge/sample/address/domain/ZipCode.class
+de/openknowledge/sample/address/domain/HouseNumber$Adapter.class
+de/openknowledge/sample/address/application/AddressApplication.class
+de/openknowledge/sample/address/domain/StreetName.class
+de/openknowledge/sample/address/infrastructure/CORSFilter.class
+de/openknowledge/sample/address/domain/City$Adapter.class
+de/openknowledge/sample/address/application/AddressResource.class
+de/openknowledge/sample/address/domain/ZipCode$Adapter.class
+de/openknowledge/sample/address/domain/City.class
+de/openknowledge/sample/address/domain/HouseNumber.class
+de/openknowledge/sample/address/domain/CityName.class

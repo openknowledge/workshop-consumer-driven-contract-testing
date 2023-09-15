@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: de.openknowledge.sample.address.AddressValidationServiceTest
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.273 s - in de.openknowledge.sample.address.AddressValidationServiceTest
