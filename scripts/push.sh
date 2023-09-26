@@ -3,8 +3,8 @@ SCRIPTS_DIR=$(readlink -f $(dirname $0))
 TMP_DIR=.tmp
 APPS_DIR=$SCRIPTS_DIR/../apps
 
-REPO_BASE_URL=localhost:30060
-JENKINS_URL="http://localhost:30070"
+REPO_BASE_URL=localhost:30030
+JENKINS_URL="http://localhost:30040"
 
 REPO_NAME=$1
 TARGET_BRANCH="${2:-main}"
