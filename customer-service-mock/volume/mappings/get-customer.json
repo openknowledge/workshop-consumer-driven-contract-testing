@@ -1,0 +1,56 @@
+{
+  "mappings": [
+    {
+      "priority": 1,
+      "request": {
+        "method": "GET",
+        "urlPath": "/customers/0815"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "bodyFileName": "0815.json"
+      }
+    },
+    {
+      "priority": 2,
+      "request": {
+        "method": "GET",
+        "urlPath": "/customers/0816"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "bodyFileName": "0816.json"
+      }
+    },
+    {
+      "priority": 3,
+      "request": {
+        "method": "GET",
+        "urlPath": "/customers/007"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "bodyFileName": "007.json"
+      }
+    },
+    {
+      "priority": 4,
+      "request": {
+        "method": "GET",
+        "urlPattern": "/customers/([0-9]*)"
+      },
+      "response": {
+        "status": 404
+      }
+    }
+  ]
+}

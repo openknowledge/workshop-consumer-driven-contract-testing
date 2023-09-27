@@ -1,0 +1,20 @@
+{
+    "name": "Erika Mustermann",
+    "number": "0816",
+    "billingAddress": {
+        "city": "45127 Essen",
+        "recipient": "Erika Mustermann",
+        "street": {
+            "name": "II. Hagen",
+            "number": "7"
+        }
+    },
+    "deliveryAddress": {
+        "city": "45127 Essen",
+        "recipient": "Erika Mustermann",
+        "street": {
+            "name": "II. Hagen",
+            "number": "7"
+        }
+    }
+}

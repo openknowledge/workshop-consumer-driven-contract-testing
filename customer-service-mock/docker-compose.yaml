@@ -1,0 +1,8 @@
+services:
+  customer-service-mock:
+    image: wiremock/wiremock:2.35.0
+    command: --global-response-templating
+    volumes:
+      - ./volume:/home/wiremock
+    ports:
+      - "4000:8080"

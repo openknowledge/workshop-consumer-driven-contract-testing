@@ -1,0 +1,68 @@
+{
+  "mappings": [
+    {
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "urlPath": "/customers",
+        "bodyPatterns": [
+          {
+            "equalToJson": "{\"name\": \"${json-unit.any-string}\",\"number\": \"0815\"}",
+            "enablePlaceholders" : true
+          }
+        ]
+      },
+      "response": {
+        "status": 409
+      }
+    },
+    {
+      "priority": 2,
+      "request": {
+        "method": "POST",
+        "urlPath": "/customers",
+        "bodyPatterns": [
+          {
+            "equalToJson": "{\"name\": \"${json-unit.any-string}\",\"number\": \"0816\"}",
+            "enablePlaceholders" : true
+          }
+        ]
+      },
+      "response": {
+        "status": 409
+      }
+    },
+    {
+      "priority": 3,
+      "request": {
+        "method": "POST",
+        "urlPath": "/customers",
+        "bodyPatterns": [
+          {
+            "equalToJson": "{\"name\": \"${json-unit.any-string}\",\"number\": \"007\"}",
+            "enablePlaceholders" : true
+          }
+        ]
+      },
+      "response": {
+        "status": 409
+      }
+    },
+    {
+      "priority": 4,
+      "request": {
+        "method": "POST",
+        "urlPath": "/customers",
+        "bodyPatterns": [
+          {
+            "equalToJson": "{\"name\": \"${json-unit.any-string}\",\"number\": \"${json-unit.any-string}\"}",
+            "enablePlaceholders" : true
+          }
+        ]
+      },
+      "response": {
+        "status": 201
+      }
+    }
+  ]
+}
