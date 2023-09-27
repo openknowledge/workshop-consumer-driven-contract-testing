@@ -57,11 +57,11 @@ public class DeliveryAddressRepository {
     public Optional<Address> find(CustomerNumber customerNumber) {
         LOG.info("load delivery address from " + deliveryServiceUrl);
         return Optional.of(client
-            .target(deliveryServiceUrl)
-            .path(DELIVERY_ADDRESSES_PATH)
-            .path(customerNumber.toString())
-            .request(MediaType.APPLICATION_JSON)
-            .get())
+                .target(deliveryServiceUrl)
+                .path(DELIVERY_ADDRESSES_PATH)
+                .path(customerNumber.toString())
+                .request(MediaType.APPLICATION_JSON)
+                .get())
             .filter(r -> r.getStatusInfo().getFamily() == SUCCESSFUL)
             .filter(Response::hasEntity)
             .map(r -> r.readEntity(Address.class));

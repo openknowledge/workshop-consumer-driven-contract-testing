@@ -76,7 +76,5 @@ public class HouseNumber {
         public String adaptToJson(HouseNumber number) throws Exception {
             return number.toString();
         }
-
     }
-
 }

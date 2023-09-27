@@ -77,7 +77,5 @@ public class CustomerNumber implements Serializable {
         public String adaptToJson(CustomerNumber number) throws Exception {
             return number.toString();
         }
-
     }
-
 }

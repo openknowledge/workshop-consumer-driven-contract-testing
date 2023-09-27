@@ -15,7 +15,6 @@
  */
 package de.openknowledge.sample.address.domain;
 
-
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.Validate.notNull;
 
@@ -101,5 +100,4 @@ public class City {
             return name.toString();
         }
     }
-
 }

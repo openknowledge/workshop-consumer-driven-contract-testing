@@ -17,21 +17,20 @@ package de.openknowledge.sample.customer.domain;
 
 import static org.apache.commons.lang3.Validate.notNull;
 
-import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
 
 import de.openknowledge.sample.address.domain.Address;
 
 public class Customer {
 
+    @JsonbProperty
     CustomerNumber number;
+    @JsonbProperty
     private CustomerName name;
     private Address billingAddress;
     private Address deliveryAddress;
 
-    @JsonbCreator
-    public Customer(@JsonbProperty("name") CustomerName name) {
-        this.name = notNull(name, "name may not be null");
+    protected Customer() {
     }
 
     public Customer(CustomerNumber number, CustomerName name) {

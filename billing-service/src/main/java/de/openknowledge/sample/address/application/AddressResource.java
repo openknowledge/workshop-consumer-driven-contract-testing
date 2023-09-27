@@ -15,10 +15,18 @@
  */
 package de.openknowledge.sample.address.application;
 
+import static jakarta.json.bind.JsonbBuilder.create;
+import static java.util.Optional.ofNullable;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.NotFoundException;
@@ -30,6 +38,9 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
+import jakarta.ws.rs.sse.Sse;
+import jakarta.ws.rs.sse.SseBroadcaster;
+import jakarta.ws.rs.sse.SseEventSink;
 
 import de.openknowledge.sample.address.domain.Address;
 import de.openknowledge.sample.address.domain.AddressRepository;
@@ -48,6 +59,15 @@ public class AddressResource {
 
     @Inject
     private AddressRepository addressesRepository;
+    @Context
+    private Sse sse;
+
+    private Map<CustomerNumber, SseBroadcaster> topics;
+
+    @PostConstruct
+    void initialize() {
+        topics = new ConcurrentHashMap<>();
+    }
 
     @GET
     @Path("/{customerNumber}")
@@ -55,6 +75,19 @@ public class AddressResource {
     public Address getAddress(@PathParam("customerNumber") CustomerNumber number) {
         LOGGER.info("RESTful call 'GET address'");
         return addressesRepository.find(number).orElseThrow(NotFoundException::new);
+    }
+
+    @GET
+    @Path("/{customerNumber}")
+    @Produces("text/event-stream")
+    public void getAddressUpdates(
+        @PathParam("customerNumber") CustomerNumber number,
+        @Context SseEventSink topic,
+        @Context HttpServletResponse response) throws IOException {
+
+        LOGGER.info("Register sse event");
+        topics.computeIfAbsent(number, n -> sse.newBroadcaster()).register(topic);
+        response.flushBuffer();
     }
 
     @POST
@@ -67,6 +100,8 @@ public class AddressResource {
 
         LOGGER.info("RESTful call 'POST address'");
         addressesRepository.update(customerNumber, address);
+        ofNullable(topics.get(customerNumber)).ifPresent(topic -> topic.broadcast(
+            sse.newEvent("BillingAddressUpdated", create().toJson(new BillingAddressUpdatedEvent(customerNumber, address)))));
         return Response.ok().build();
     }
 }

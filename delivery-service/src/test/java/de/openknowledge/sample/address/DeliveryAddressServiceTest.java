@@ -58,7 +58,8 @@ public class DeliveryAddressServiceTest {
     private AddressValidationService addressValidationService;
     @Inject
     private UserTransaction transaction;
-    @Inject @Any
+    @Inject
+    @Any
     private EntityManager entityManager;
 
     @BeforeEach

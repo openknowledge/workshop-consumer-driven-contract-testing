@@ -44,7 +44,6 @@ public class Recipient {
         return name;
     }
 
-
     @Override
     public int hashCode() {
         return name.hashCode();
@@ -64,7 +63,6 @@ public class Recipient {
 
         return toString().equals(recipient.toString());
     }
-
 
     public static class Adapter implements JsonbAdapter<Recipient, String> {
 

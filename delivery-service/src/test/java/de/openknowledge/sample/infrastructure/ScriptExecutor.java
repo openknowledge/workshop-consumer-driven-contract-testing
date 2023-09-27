@@ -35,7 +35,7 @@ public class ScriptExecutor {
 
     public ScriptExecutor script(String name) throws IOException {
         String script = IOUtils.toString(Thread.currentThread().getContextClassLoader().getResourceAsStream(name));
-        for (String line: script.split(";")) {
+        for (String line : script.split(";")) {
             entityManager.createNativeQuery(line).executeUpdate();
         }
         return this;
