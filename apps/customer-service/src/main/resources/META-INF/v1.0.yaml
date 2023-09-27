@@ -1,0 +1,138 @@
+openapi: "3.0.0"
+info:
+  title: "Customer Service"
+  version: "1.0.0-SNAPSHOT"
+components:
+  schemas:
+    Address:
+      type: "object"
+      properties:
+        city:
+          type: "string"
+        street:
+          type: "object"
+          properties:
+            number:
+              type: "string"
+            name:
+              type: "string"
+        recipient:
+          type: "string"
+    Street:
+      type: "object"
+      properties:
+        number:
+          type: "string"
+        name:
+          type: "string"
+    Customer:
+      type: "object"
+      properties:
+        number:
+          type: "string"
+        name:
+          type: "string"
+        billingAddress:
+          type: "object"
+          $ref: "#/components/schemas/Address"
+        deliveryAddress:
+          type: "object"
+          $ref: "#/components/schemas/Address"
+    SimpleCustomer:
+      type: "object"
+      properties:
+        number:
+          type: "string"
+        name:
+          type: "string"
+paths:
+  /customers/{customerNumber}/billing-address:
+    put:
+      parameters:
+      - required: true
+        schema:
+          type: "string"
+        in: "path"
+        style: "SIMPLE"
+        name: "customerNumber"
+      operationId: "setBillingAddress"
+      description: "Creates or updates the billing address of a customers"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              $ref: "#/components/schemas/Address"
+      responses:
+        "204":
+          description: "default response"
+  /customers/{customerNumber}/delivery-address:
+    put:
+      parameters:
+      - required: true
+        schema:
+          type: "string"
+        in: "path"
+        style: "SIMPLE"
+        name: "customerNumber"
+      operationId: "setDeliveryAddress"
+      description: "Creates or updates the delivery address of a customers"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              $ref: "#/components/schemas/Address"
+      responses:
+        "204":
+          description: "default response"
+  /customers:
+    get:
+      parameters: []
+      operationId: "getCustomers"
+      description: "Load all customers"
+      responses:
+        "200":
+          description: "default response"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  type: "object"
+                  $ref: "#/components/schemas/Customer"
+    post:
+      parameters: []
+      operationId: "createCustomer"
+      description: "Create a customers"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              $ref: "#/components/schemas/SimpleCustomer"
+      responses:
+        "200":
+          description: "default response"
+  /customers/{customerNumber}:
+    get:
+      parameters:
+      - required: true
+        schema:
+          type: "string"
+        in: "path"
+        style: "SIMPLE"
+        name: "customerNumber"
+      operationId: "getCustomer"
+      description: "Loads the details of a customer (including addresses)"
+      responses:
+        "200":
+          description: "default response"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                $ref: "#/components/schemas/Customer"

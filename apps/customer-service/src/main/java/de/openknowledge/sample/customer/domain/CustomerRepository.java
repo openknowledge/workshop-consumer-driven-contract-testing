@@ -44,11 +44,11 @@ public class CustomerRepository {
 
         customers = new ConcurrentHashMap<>();
         customers.put(new CustomerNumber("0815"),
-                new Customer(new CustomerNumber("0815"), new CustomerName("Max Mustermann")));
+                new Customer(new CustomerNumber("0815"), new Name("Max", "Mustermann")));
         customers.put(new CustomerNumber("0816"),
-                new Customer(new CustomerNumber("0816"), new CustomerName("Erika Mustermann")));
+                new Customer(new CustomerNumber("0816"), new Name("Erika", "Mustermann")));
         customers.put(new CustomerNumber("007"),
-                new Customer(new CustomerNumber("007"), new CustomerName("James Bond")));
+                new Customer(new CustomerNumber("007"), new Name("James",  "Bond")));
         LOGGER.info(format("customer repository initialized with %d customers: ", customers.size()));
     }
 
