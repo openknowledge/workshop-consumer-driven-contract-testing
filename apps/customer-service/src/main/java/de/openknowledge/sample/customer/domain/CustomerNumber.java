@@ -15,12 +15,12 @@
  */
 package de.openknowledge.sample.customer.domain;
 
-import de.openknowledge.sample.customer.domain.CustomerNumber.Adapter;
+import static org.apache.commons.lang3.Validate.notBlank;
 
 import javax.json.bind.adapter.JsonbAdapter;
 import javax.json.bind.annotation.JsonbTypeAdapter;
 
-import static org.apache.commons.lang3.Validate.notBlank;
+import de.openknowledge.sample.customer.domain.CustomerNumber.Adapter;
 
 @JsonbTypeAdapter(Adapter.class)
 public class CustomerNumber {

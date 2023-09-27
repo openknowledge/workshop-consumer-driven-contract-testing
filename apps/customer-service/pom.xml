@@ -28,6 +28,7 @@
         <failOnMissingWebXml>false</failOnMissingWebXml>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <meecrowave.version>1.2.13</meecrowave.version>
+        <jackson.version>2.12.4</jackson.version>
         <junit.version>5.8.2</junit.version>
     </properties>
 
@@ -49,6 +50,31 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-validation_1.0_spec</artifactId>
             <version>1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.microprofile-ext.openapi-ext</groupId>
+            <artifactId>swagger-ui</artifactId>
+            <version>1.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.microprofile.openapi</groupId>
+            <artifactId>microprofile-openapi-api</artifactId>
+            <version>1.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo</groupId>
+            <artifactId>geronimo-openapi-impl</artifactId>
+            <version>1.0.14</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.microprofile.config</groupId>
@@ -107,11 +133,6 @@
             <groupId>org.apache.geronimo.config</groupId>
             <artifactId>geronimo-config-impl</artifactId>
             <version>1.2.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-validation_1.0_spec</artifactId>
-            <version>1.1</version>
         </dependency>
     </dependencies>
 
