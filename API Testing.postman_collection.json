@@ -1,0 +1,40 @@
+{
+	"info": {
+		"_postman_id": "daf5cee9-cf2a-4581-9f29-e5b86021e7a3",
+		"name": "API Testing",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "27875178"
+	},
+	"item": [
+		{
+			"name": "Get  all customers",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Response body contains\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    console.log(jsonData)",
+							"    pm.expect(jsonData).to.deep.include({",
+							"        \"name\": \"Max Mustermann\",",
+							"        \"number\": \"0815\"",
+							"    });",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:30060/customers"
+			},
+			"response": []
+		}
+	]
+}
