@@ -5,4 +5,5 @@
 !.gitattributes
 /keycloak/*
 target/
+!.devcontainer
 *.iml

@@ -1,0 +1,136 @@
+openapi: 3.1.0
+info:
+  title: Billing Service
+  version: 2.0.0
+servers:
+- url: http://localhost:6060
+paths:
+  /billing-addresses/{customer_number}:
+    get:
+      operationId: getBillingAddress
+      parameters:
+      - explode: false
+        in: path
+        name: customer_number
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The billing address of the customer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddressV1'
+              example:
+                street:
+                  streetName: "Am Rundtörn"
+                  houseNumber: "30"
+                city: "26135 Oldenburg"
+            application/vnd.de.openknowledge.onlineshop.v1+json:
+              schema:
+                $ref: '#/components/schemas/AddressV1'
+            application/vnd.de.openknowledge.onlineshop.v2+json:
+              schema:
+                $ref: '#/components/schemas/Address'
+    put:
+      operationId: setBillingAddress
+      parameters:
+      - explode: false
+        in: path
+        name: customer_number
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressV1'
+            example:
+              addressLine1: "Am Rundtörn 30"
+              addressLine2: ""
+              location:
+                zipCode: "26135"
+                cityName: "Oldenburg"
+          application/vnd.de.openknowledge.onlineshop.v1+json:
+            schema:
+              $ref: '#/components/schemas/AddressV1'
+          application/vnd.de.openknowledge.onlineshop.v2+json:
+            schema:
+              $ref: '#/components/schemas/Address'
+      responses:
+        "204":
+          description: Address was changed
+components:
+  schemas:
+    AddressV1:
+      example:
+        addressLine1: "Am Rundtörn 30"
+        addressLine2: ""
+        location:
+          zipCode: "26135"
+          cityName: "Oldenburg"
+      properties:
+        addressLine1:
+          type: string
+        addressLine2:
+          type: string
+        location:
+          $ref: '#/components/schemas/Location'
+        street:
+          deprecated: true
+          $ref: '#/components/schemas/Street'
+        city:
+          deprecated: true
+          minLength: 1
+          type: string
+      required:
+      - addressLine1
+      - location
+    Location:
+      properties:
+        zipCode:
+          pattern: "\\d{5}"
+          type: string
+        cityName:
+          minLength: 1
+          type: string
+      required:
+      - zipCode
+      - cityName
+    Street:
+      properties:
+        streetName:
+          minLength: 2
+          type: string
+        houseNumber:
+          minLength: 1
+          type: string
+      required:
+      - streetName
+      - houseNumber
+    Address:
+      example:
+        addressLine1: "Am Rundtörn 30"
+        addressLine2: ""
+        location:
+          zipCode: "26135"
+          cityName: "Oldenburg"
+      properties:
+        street:
+          minLength: 2
+          type: string
+        house_number:
+          minLength: 1
+          type: string
+        zip_code:
+          pattern: "\\d{5}"
+          type: string
+        city:
+          minLength: 1
+          type: string
+      required:
+      - city
+      - street
+      - zip_code
