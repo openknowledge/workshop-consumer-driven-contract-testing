@@ -4,10 +4,5 @@
   "location": {
     "zipCode": "26135",
     "cityName": "Oldenburg"
-  },
-  "street": {
-    "streetName": "Am Rundtörn",
-    "houseNumber": "30"
-  },
-  "city": "26135 Oldenburg"
+  }
 }
