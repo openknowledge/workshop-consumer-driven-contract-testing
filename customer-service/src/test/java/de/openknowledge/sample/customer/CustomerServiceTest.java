@@ -17,7 +17,7 @@ package de.openknowledge.sample.customer;
 
 import static de.openknowledge.sample.customer.JsonObjectComparision.sameAs;
 import static de.openknowledge.sample.customer.JsonObjectComparision.thatIsSameAs;
-import static javax.ws.rs.client.Entity.entity;
+import static jakarta.ws.rs.client.Entity.entity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -25,13 +25,13 @@ import java.io.StringReader;
 import java.net.URI;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.inject.Inject;
+import jakarta.json.Json;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import org.apache.meecrowave.Meecrowave;
 import org.apache.meecrowave.junit5.MeecrowaveConfig;
