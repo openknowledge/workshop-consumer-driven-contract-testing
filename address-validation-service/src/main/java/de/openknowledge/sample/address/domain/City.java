@@ -22,8 +22,8 @@ import static org.apache.commons.lang3.Validate.notNull;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.json.bind.adapter.JsonbAdapter;
-import javax.json.bind.annotation.JsonbTypeAdapter;
+import jakarta.json.bind.adapter.JsonbAdapter;
+import jakarta.json.bind.annotation.JsonbTypeAdapter;
 
 import de.openknowledge.sample.address.domain.City.Adapter;
 
