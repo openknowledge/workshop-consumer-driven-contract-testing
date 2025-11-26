@@ -109,7 +109,7 @@
     </module>
     <module name="IllegalThrows"/>
     <module name="ImportOrder">
-      <property name="groups" value="java,javax,org,com,io"/>
+      <property name="groups" value="java,jakarta,org,com,io"/>
       <property name="separated" value="true"/>
       <property name="option" value="top"/>
     </module>

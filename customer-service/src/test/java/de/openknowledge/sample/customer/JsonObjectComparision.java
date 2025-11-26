@@ -18,9 +18,9 @@ package de.openknowledge.sample.customer;
 import java.io.InputStream;
 import java.util.Map;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonValue;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonValue;
 
 import org.assertj.core.api.Condition;
 
