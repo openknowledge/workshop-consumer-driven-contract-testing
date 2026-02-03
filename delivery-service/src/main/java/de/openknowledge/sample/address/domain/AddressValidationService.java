@@ -18,10 +18,12 @@ package de.openknowledge.sample.address.domain;
 import static jakarta.ws.rs.client.Entity.entity;
 
 import java.io.StringReader;
+import java.util.Locale;
 import java.util.logging.Logger;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.validation.ValidationException;
@@ -41,6 +43,8 @@ public class AddressValidationService {
     @Inject
     @ConfigProperty(name = "address-validation-service.url")
     String addressValidationServiceUrl;
+    @Inject
+    Provider<Locale> localeProvider;
 
     public void validate(Address address) {
         Response validationResult = ClientBuilder
@@ -49,11 +53,20 @@ public class AddressValidationService {
             .target(addressValidationServiceUrl)
             .path(ADDRESS_VALIDATION_PATH)
             .request(MediaType.APPLICATION_JSON)
+            .header("Accept-Language", localeProvider.get().getLanguage())
             .post(entity(address, MediaType.APPLICATION_JSON_TYPE));
         if (validationResult.getStatus() != Response.Status.OK.getStatusCode()) {
             LOG.info("validation failed");
-            JsonObject problem = Json.createReader(new StringReader(validationResult.readEntity(String.class))).readObject();
-            throw new ValidationException(problem.getString("detail"));
+            String responseBody = validationResult.readEntity(String.class);
+            JsonObject problem = Json.createReader(new StringReader(responseBody)).readObject();
+
+            // Check if "detail" field exists, fallback to full JSON if not present
+            String detail = problem.containsKey("detail")
+                ? problem.getString("detail")
+                : responseBody;
+            LOG.info("Error saving address: " + detail);
+
+            throw new ValidationException(detail);
         }
     }
 }
