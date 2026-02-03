@@ -1,4 +1,32 @@
 services:
+  customer-service:
+    build: customer-service/
+    ports:
+      - "8181:8080"
+    environment:
+      - BILLING_SERVICE_URL=http://billing-service:8080
+      - DELIVERY_SERVICE_URL=http://delivery-service:8080
+
+  billing-service:
+    build: billing-service/
+    container_name: billing-service
+    ports:
+      - "8182:8080"
+
+  delivery-service:
+    build: delivery-service/
+    container_name: delivery-service
+    ports:
+      - "8183:8080"
+    environment:
+      - ADDRESS_VALIDATION_SERVICE_URL=http://address-validation-service:8080
+
+  address-validation-service:
+    build: address-validation-service/
+    container_name: address-validation_service
+    ports:
+      - "8184:8080"
+
   api-gateway:
     image: nginx:1.27.1
     ports:
@@ -36,22 +64,12 @@ services:
       dockerfile: ./setup/Dockerfile
   prod:
     build: server/
-    ports:
-    - 8181:8081
-    - 8182:8082
-    - 8183:8083
-    - 8184:8084
     environment:
     - PASSWORD_ACCESS=true
     - USER_PASSWORD=jenkins
     - USER_NAME=jenkins
   test:
     build: server/
-    ports:
-    - 8281:8081
-    - 8282:8082
-    - 8283:8083
-    - 8284:8084
     environment:
     - PASSWORD_ACCESS=true
     - USER_PASSWORD=jenkins
@@ -72,3 +90,37 @@ services:
     - POSTGRES_PASSWORD=delivery-password
     volumes:
     - ./delivery-service/src/main/resources/sql:/docker-entrypoint-initdb.d
+      - "8184:8080"
+  customer-client:
+    build:
+      context: customer-client/
+      args:
+        - VITE_API_URL=http://localhost:8181
+    container_name: customer-client
+    ports:
+      - "3000:80"
+    depends_on:
+      - customer-service
+
+  swagger-ui:
+    image: swaggerapi/swagger-ui:v5.17.7
+    volumes:
+      - "./swagger-ui:/usr/share/nginx/html/doc"
+    environment:
+      API_URL: "doc/openapi.yaml"
+
+  wiremock:
+    image: wiremock/wiremock:3.5.4
+    volumes:
+      - "./wiremock:/home/wiremock"
+    ports:
+      - "7070:8080"
+
+  hurl:
+    image: ghcr.io/orange-opensource/hurl:4.3.0
+    command: "--retry 5 --test /home/address-1.0.hurl /home/address-1.1.hurl /home/address-2.0.hurl"
+    volumes:
+      - "./hurl:/home"
+    depends_on:
+      - wiremock
+
