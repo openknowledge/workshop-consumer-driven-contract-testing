@@ -88,6 +88,15 @@ public class CustomerResource {
         return customer;
     }
 
+    @GET
+    @Path("/{customerNumber}/billing-address")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Address getBillingAddress(@PathParam("customerNumber") CustomerNumber customerNumber) {
+        LOG.info("RESTful call 'GET billing address'");
+        customerRepository.find(customerNumber).orElseThrow(customerNotFound(customerNumber));
+        return billingAddressRepository.find(customerNumber).orElseThrow(addressNotFound(customerNumber));
+    }
+
     @PUT
     @Path("/{customerNumber}/billing-address")
     @Produces(MediaType.APPLICATION_JSON)
@@ -95,6 +104,17 @@ public class CustomerResource {
         LOG.info("RESTful call 'PUT billing address'");
         customerRepository.find(customerNumber).orElseThrow(customerNotFound(customerNumber));
         billingAddressRepository.update(customerNumber, billingAddress);
+    }
+
+    @GET
+    @Path("/{customerNumber}/delivery-address")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Address getDeliveryAddress(
+        @PathParam("customerNumber") CustomerNumber customerNumber) {
+
+        LOG.info("RESTful call 'GET delivery address'");
+        customerRepository.find(customerNumber).orElseThrow(customerNotFound(customerNumber));
+        return deliveryAddressRepository.find(customerNumber).orElseThrow(addressNotFound(customerNumber));
     }
 
     @PUT
@@ -111,5 +131,9 @@ public class CustomerResource {
 
     private Supplier<NotFoundException> customerNotFound(CustomerNumber number) {
         return () -> new NotFoundException("customer " + number + " not found");
+    }
+
+    private Supplier<NotFoundException> addressNotFound(CustomerNumber number) {
+        return () -> new NotFoundException("address not found for " + number);
     }
 }

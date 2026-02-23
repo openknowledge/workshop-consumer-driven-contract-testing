@@ -15,7 +15,7 @@
  */
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { useCustomer } from '../api/hooks';
+import { useCustomer, useBillingAddress, useDeliveryAddress } from '../api/hooks';
 import BillingAddressForm from '../components/BillingAddressForm';
 import DeliveryAddressForm from '../components/DeliveryAddressForm';
 import type { Address } from '../types/customer';
@@ -24,6 +24,8 @@ export default function CustomerDetail() {
   const { customerNumber } = useParams<{ customerNumber: string }>();
   const navigate = useNavigate();
   const { data: customer, isLoading, error } = useCustomer(customerNumber);
+  const { data: billingAddress } = useBillingAddress(customerNumber!, customer?.billingAddress);
+  const { data: deliveryAddress } = useDeliveryAddress(customerNumber!, customer?.deliveryAddress);
   const [editingBilling, setEditingBilling] = useState(false);
   const [editingDelivery, setEditingDelivery] = useState(false);
 
@@ -106,19 +108,19 @@ export default function CustomerDetail() {
             <h3>Rechnungsadresse</h3>
             {!editingBilling && (
               <button className="button button-small" onClick={() => setEditingBilling(true)}>
-                {customer.billingAddress ? 'Bearbeiten' : 'Hinzufügen'}
+                {billingAddress ? 'Bearbeiten' : 'Hinzufügen'}
               </button>
             )}
           </div>
           {editingBilling ? (
             <BillingAddressForm
               customerNumber={customerNumber!}
-              initialAddress={customer.billingAddress}
+              initialAddress={billingAddress}
               onSuccess={() => setEditingBilling(false)}
               onCancel={() => setEditingBilling(false)}
             />
           ) : (
-            renderAddress(customer.billingAddress)
+            renderAddress(billingAddress)
           )}
         </div>
 
@@ -127,19 +129,19 @@ export default function CustomerDetail() {
             <h3>Lieferadresse</h3>
             {!editingDelivery && (
               <button className="button button-small" onClick={() => setEditingDelivery(true)}>
-                {customer.deliveryAddress ? 'Bearbeiten' : 'Hinzufügen'}
+                {deliveryAddress ? 'Bearbeiten' : 'Hinzufügen'}
               </button>
             )}
           </div>
           {editingDelivery ? (
             <DeliveryAddressForm
               customerNumber={customerNumber!}
-              initialAddress={customer.deliveryAddress}
+              initialAddress={deliveryAddress}
               onSuccess={() => setEditingDelivery(false)}
               onCancel={() => setEditingDelivery(false)}
             />
           ) : (
-            renderAddress(customer.deliveryAddress)
+            renderAddress(deliveryAddress)
           )}
         </div>
       </div>

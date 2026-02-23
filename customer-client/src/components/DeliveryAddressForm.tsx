@@ -15,7 +15,7 @@
  */
 import { useForm } from '@tanstack/react-form';
 import { useState } from 'react';
-import { useUpdateDeliveryAddress } from '../api/hooks';
+import { useDeliveryAddress, useUpdateDeliveryAddress } from '../api/hooks';
 import { addressSchema } from '../types/customer';
 import type { Address } from '../types/customer';
 import { z, type ZodIssue } from 'zod';
@@ -33,16 +33,17 @@ export default function DeliveryAddressForm({
   onSuccess,
   onCancel,
 }: DeliveryAddressFormProps) {
+  const { data: address } = useDeliveryAddress(customerNumber, initialAddress);
   const updateDeliveryAddress = useUpdateDeliveryAddress();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const form = useForm({
     defaultValues: {
-      recipient: initialAddress?.recipient || '',
-      streetName: initialAddress?.street?.name || '',
-      houseNumber: initialAddress?.street?.number || '',
-      zipCode: initialAddress?.city?.split(' ')[0] || '',
-      cityName: initialAddress?.city?.split(' ').slice(1).join(' ') || '',
+      recipient: address?.recipient || '',
+      streetName: address?.street?.name || '',
+      houseNumber: address?.street?.number || '',
+      zipCode: address?.city?.split(' ')[0] || '',
+      cityName: address?.city?.split(' ').slice(1).join(' ') || '',
     },
     onSubmit: async ({ value }) => {
       try {

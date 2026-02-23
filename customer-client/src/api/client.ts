@@ -73,6 +73,14 @@ export const customerApi = {
     });
   },
 
+  getBillingAddress: async (customerNumber: string): Promise<Address> => {
+    return fetchApi<Address>(`/customers/${customerNumber}/billing-address`);
+  },
+
+  getDeliveryAddress: async (customerNumber: string): Promise<Address> => {
+    return fetchApi<Address>(`/customers/${customerNumber}/delivery-address`);
+  },
+
   updateBillingAddress: async (customerNumber: string, address: Address): Promise<void> => {
     await fetchApi<void>(`/customers/${customerNumber}/billing-address`, {
       method: 'PUT',

@@ -19,6 +19,7 @@ import static java.util.Optional.ofNullable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -37,6 +38,7 @@ import au.com.dius.pact.provider.junit5.HttpTestTarget;
 import au.com.dius.pact.provider.junit5.PactVerificationContext;
 import au.com.dius.pact.provider.junit5.PactVerificationInvocationContextProvider;
 import au.com.dius.pact.provider.junitsupport.Provider;
+import au.com.dius.pact.provider.junitsupport.State;
 import au.com.dius.pact.provider.junitsupport.loader.PactFolder;
 import de.openknowledge.sample.address.domain.Address;
 import de.openknowledge.sample.address.domain.BillingAddressRepository;
@@ -95,5 +97,19 @@ public class CustomerServiceTest {
     @ExtendWith(PactVerificationInvocationContextProvider.class)
     void pactVerificationTestTemplate(PactVerificationContext context) {
         ofNullable(context).ifPresent(PactVerificationContext::verifyInteraction);
+    }
+
+    @State("James has billing address")
+    public void insertJamesBillingAddress() {
+        reset(billingAddressRepository);
+        when(billingAddressRepository.find(new CustomerNumber("007")))
+            .thenReturn(Optional.of(Address.of("James Bond").atStreet("Albert Embankment 85").inCity("SE1 7TP London").build()));
+    }
+
+    @State("James has delivery address")
+    public void insertJamesDeliveryAddress() {
+        reset(deliveryAddressRepository);
+        when(deliveryAddressRepository.find(new CustomerNumber("007")))
+            .thenReturn(Optional.of(Address.of("James Bond").atStreet("Chausseestraße 96-99a").inCity("10115 Berlin Mitte").build()));
     }
 }

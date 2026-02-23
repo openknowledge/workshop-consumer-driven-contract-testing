@@ -22,12 +22,12 @@ const customer0815 = {
   name: 'Max Mustermann',
   billingAddress: {
     recipient: 'Max Mustermann',
-    street: { name: 'Poststr.', number: '1' },
+    street: { name: 'Poststrasse', number: '1' },
     city: '26122 Oldenburg',
   },
   deliveryAddress: {
     recipient: 'Max Mustermann',
-    street: { name: 'Poststr.', number: '1' },
+    street: { name: 'Poststrasse', number: '1' },
     city: '26122 Oldenburg',
   },
 };
@@ -53,6 +53,17 @@ test.describe('Adressen anlegen', () => {
         builder
           .headers({ 'Content-Type': 'application/json' })
           .jsonBody({ number: '007', name: 'James Bond' });
+      });
+    provider
+      .addInteraction()
+      .uponReceiving('a request to get billing address for customer 007')
+      .withRequest('GET', '/customers/007/billing-address')
+      .willRespondWith(200, (builder) => {
+        builder.headers({ 'Content-Type': 'application/json' }).jsonBody({
+          recipient: 'James Bond',
+          street: { name: 'Albert Embankment', number: '85' },
+          city: 'SE1 7TP London',
+        });
       });
     await provider
       .addInteraction()
@@ -100,13 +111,24 @@ test.describe('Adressen anlegen', () => {
           .headers({ 'Content-Type': 'application/json' })
           .jsonBody({ number: '007', name: 'James Bond' });
       });
+    provider
+      .addInteraction()
+      .uponReceiving('a request to get delivery address for customer 007')
+      .withRequest('GET', '/customers/007/delivery-address')
+      .willRespondWith(200, (builder) => {
+        builder.headers({ 'Content-Type': 'application/json' }).jsonBody({
+          recipient: 'James Bond',
+          street: { name: 'Chausseestraße', number: '96-99a' },
+          city: '10115 Berlin Mitte',
+        });
+      });
     await provider
       .addInteraction()
       .uponReceiving('a request to create delivery address for customer 007')
       .withRequest('PUT', '/customers/007/delivery-address', (builder) => {
         builder.headers({ 'Content-Type': 'application/json' }).jsonBody({
           recipient: 'James Bond',
-          street: { name: 'Chausseestraße', number: '96 - 99a' },
+          street: { name: 'Chausseestraße', number: '96-99a' },
           city: '10115 Berlin Mitte',
         });
       })
@@ -125,7 +147,7 @@ test.describe('Adressen anlegen', () => {
         await deliverySection.getByRole('button', { name: 'Hinzufügen' }).click();
         await deliverySection.getByRole('textbox', { name: 'Empfänger *' }).fill('James Bond');
         await deliverySection.getByRole('textbox', { name: 'Straße' }).fill('Chausseestraße');
-        await deliverySection.getByRole('textbox', { name: 'Hausnummer' }).fill('96 - 99a');
+        await deliverySection.getByRole('textbox', { name: 'Hausnummer' }).fill('96-99a');
         await deliverySection.getByRole('textbox', { name: 'PLZ' }).fill('10115');
         await deliverySection.getByRole('textbox', { name: 'Stadt' }).fill('Berlin Mitte');
         await deliverySection.getByRole('button', { name: 'Speichern' }).click();
@@ -223,7 +245,7 @@ test.describe('Adressen bearbeiten', () => {
       .withRequest('PUT', '/customers/0815/delivery-address', (builder) => {
         builder.headers({ 'Content-Type': 'application/json' }).jsonBody({
           recipient: 'Max Mustermann',
-          street: { name: 'Poststr.', number: '1' },
+          street: { name: 'Poststrasse', number: '1' },
           city: '12345 Oldenburg',
         });
       })
@@ -260,7 +282,7 @@ test.describe('Adressen bearbeiten', () => {
       .withRequest('PUT', '/customers/0815/delivery-address', (builder) => {
         builder.headers({ 'Content-Type': 'application/json' }).jsonBody({
           recipient: 'Max Mustermann',
-          street: { name: 'Poststr.', number: '1' },
+          street: { name: 'Poststrasse', number: '1' },
           city: '10115 Berlin',
         });
       })
@@ -298,7 +320,7 @@ test.describe('Adressen bearbeiten', () => {
       .withRequest('PUT', '/customers/0815/delivery-address', (builder) => {
         builder.headers({ 'Content-Type': 'application/json' }).jsonBody({
           recipient: 'Max Mustermann',
-          street: { name: 'Poststr.', number: '1' },
+          street: { name: 'Poststrasse', number: '1' },
           city: '12345 Hannover',
         });
       })
@@ -339,7 +361,7 @@ test.describe('Adressen bearbeiten', () => {
       .withRequest('PUT', '/customers/0815/delivery-address', (builder) => {
         builder.headers({ 'Content-Type': 'application/json' }).jsonBody({
           recipient: 'Max Mustermann',
-          street: { name: 'Poststr.', number: '1' },
+          street: { name: 'Poststrasse', number: '1' },
           city: '19322 Oldenburg',
         });
       })
@@ -372,52 +394,73 @@ test.describe('Adressen bearbeiten', () => {
   test('Rechnungsadresse ändern', async ({ page }) => {
     const provider = createProvider();
     addCustomer0815Interaction(provider);
+    provider
+      .addInteraction()
+      .uponReceiving('a request to get billing address for customer 0815')
+      .withRequest('GET', '/customers/0815/billing-address')
+      .willRespondWith(200, (builder) => {
+        builder.headers({ 'Content-Type': 'application/json' }).jsonBody({
+          recipient: 'Max Mustermann',
+          street: { name: 'Poststrasse', number: '1' },
+          city: '26122 Oldenburg',
+        });
+      });
     await provider
       .addInteraction()
       .uponReceiving('a request to update billing address for customer 0815')
       .withRequest('PUT', '/customers/0815/billing-address', (builder) => {
         builder.headers({ 'Content-Type': 'application/json' }).jsonBody({
-          recipient: 'James Bond',
-          street: { name: 'Albert Embankment', number: '85' },
-          city: 'SE1 7TP London',
+          recipient: 'Erika Mustermann',
+          street: { name: 'Heidestraße', number: '17' },
+          city: '51147 Köln',
         });
       })
       .willRespondWith(204)
       .executeTest(async (mockServer) => {
         await setupApiProxy(page, mockServer.url);
         await page.goto('/customers/0815');
+        await expect(page.getByText('0815')).toBeVisible();
+        await expect(page.getByText('Name: Max Mustermann')).toBeVisible();
 
         // When
         const billingSection = page.locator('.address-section', {
           has: page.locator('h3', { hasText: 'Rechnungsadresse' }),
         });
-        await expect(billingSection.getByText('Empfänger: Max Mustermann')).toBeVisible();
-        await expect(billingSection.getByText('Straße: Poststr. 1')).toBeVisible();
-        await expect(billingSection.getByText('Ort: 26122 Oldenburg')).toBeVisible();
         await billingSection.getByRole('button', { name: 'Bearbeiten' }).click();
-        await billingSection.getByRole('textbox', { name: 'Empfänger *' }).fill('James Bond');
-        await billingSection.getByRole('textbox', { name: 'Straße' }).fill('Albert Embankment');
-        await billingSection.getByRole('textbox', { name: 'Hausnummer' }).fill('85');
-        await billingSection.getByRole('textbox', { name: 'PLZ / Ort' }).fill('SE1 7TP London');
+        await billingSection.getByRole('textbox', { name: 'Empfänger *' }).fill('Erika Mustermann');
+        await billingSection.getByRole('textbox', { name: 'Straße' }).fill('Heidestraße');
+        await billingSection.getByRole('textbox', { name: 'Hausnummer' }).fill('17');
+        await billingSection.getByRole('textbox', { name: 'PLZ / Ort' }).fill('51147 Köln');
         await billingSection.getByRole('button', { name: 'Speichern' }).click();
 
         // Then
         await expect(billingSection.getByRole('button', { name: 'Speichern' })).not.toBeVisible();
-        await expect(billingSection.getByRole('button', { name: 'Hinzufügen' })).not.toBeVisible();
+        await expect(billingSection.getByRole('button', { name: 'Bearbeiten' })).toBeVisible();
       });
   });
 
   test('Lieferadresse ändern', async ({ page }) => {
     const provider = createProvider();
     addCustomer0815Interaction(provider);
+    provider
+      .addInteraction()
+      .uponReceiving('a request to get delivery address for customer 0815')
+      .withRequest('GET', '/customers/0815/delivery-address')
+      .willRespondWith(200, (builder) => {
+        builder.headers({ 'Content-Type': 'application/json' }).jsonBody({
+          recipient: 'Max Mustermann',
+          street: { name: 'Poststrasse', number: '1' },
+          city: '26122 Oldenburg',
+        });
+      });
     await provider
       .addInteraction()
       .uponReceiving('a request to update delivery address for customer 0815')
       .withRequest('PUT', '/customers/0815/delivery-address', (builder) => {
         builder.headers({ 'Content-Type': 'application/json' }).jsonBody({
-          recipient: 'James Bond',
-          street: { name: 'Chausseestraße', number: '96 - 99a' },
-          city: '10115 Berlin Mitte',
+          recipient: 'Erika Mustermann',
+          street: { name: 'Heidestraße', number: '17' },
+          city: '51147 Köln',
         });
       })
       .willRespondWith(204)
@@ -431,20 +474,19 @@ test.describe('Adressen bearbeiten', () => {
         const deliverySection = page.locator('.address-section', {
           has: page.locator('h3', { hasText: 'Lieferadresse' }),
         });
-        await expect(deliverySection.getByText('Empfänger: Max Mustermann')).toBeVisible();
-        await expect(deliverySection.getByText('Straße: Poststr. 1')).toBeVisible();
-        await expect(deliverySection.getByText('Ort: 26122 Oldenburg')).toBeVisible();
         await deliverySection.getByRole('button', { name: 'Bearbeiten' }).click();
-        await deliverySection.getByRole('textbox', { name: 'Empfänger *' }).fill('James Bond');
-        await deliverySection.getByRole('textbox', { name: 'Straße' }).fill('Chausseestraße');
-        await deliverySection.getByRole('textbox', { name: 'Hausnummer' }).fill('96 - 99a');
-        await deliverySection.getByRole('textbox', { name: 'PLZ' }).fill('10115');
-        await deliverySection.getByRole('textbox', { name: 'Stadt' }).fill('Berlin Mitte');
+        await deliverySection
+          .getByRole('textbox', { name: 'Empfänger *' })
+          .fill('Erika Mustermann');
+        await deliverySection.getByRole('textbox', { name: 'Straße' }).fill('Heidestraße');
+        await deliverySection.getByRole('textbox', { name: 'Hausnummer' }).fill('17');
+        await deliverySection.getByRole('textbox', { name: 'PLZ' }).fill('51147');
+        await deliverySection.getByRole('textbox', { name: 'Stadt' }).fill('Köln');
         await deliverySection.getByRole('button', { name: 'Speichern' }).click();
 
         // Then
         await expect(deliverySection.getByRole('button', { name: 'Speichern' })).not.toBeVisible();
-        await expect(deliverySection.getByRole('button', { name: 'Hinzufügen' })).not.toBeVisible();
+        await expect(deliverySection.getByRole('button', { name: 'Bearbeiten' })).toBeVisible();
       });
   });
 });
