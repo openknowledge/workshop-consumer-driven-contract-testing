@@ -2,57 +2,60 @@
 
 Herzlich willkommen zum Workshop API Design.
 
-## Übung: Von Playwright-Mocking zu Pact Consumer Tests
+## Übung: Provider States verwenden
 
 ### Ausgangssituation
 
-Im Branch `playwright-pact` befinden sich drei Playwright-Testdateien im Verzeichnis `customer-client/test/`:
-
-- `customer-list.spec.ts` – Tests für die Kundenliste
-- `customer-detail.spec.ts` – Tests für die Kundendetailansicht inkl. Adressen
-- `create-customer.spec.ts` – Tests für das Anlegen eines neuen Kunden (**bereits auf Pact umgebaut, dient als Referenz**)
-
-Die Tests in `customer-list.spec.ts` und `customer-detail.spec.ts` verwenden aktuell Playwright's eingebautes `page.route()`, um API-Aufrufe direkt im Browser abzufangen und mit statischen Antworten zu mocken. Dieser Ansatz dokumentiert den API-Vertrag nicht maschinenlesbar und kann nicht automatisch gegen den echten Service verifiziert werden.
-
-Das Hilfsmuster `pact-proxy.ts` stellt zwei Funktionen bereit:
-- `createProvider()` – erstellt einen Pact-Mock-Server mit Consumer- und Providernamen
-- `setupApiProxy(page, mockServerUrl)` – leitet alle API-Aufrufe der Seite transparent an den Pact-Mock-Server weiter
+Zwei Tests zum Ändern von Adressen schlagen fehl.
 
 ### Aufgabe
 
-Baue die Playwright-Tests in `customer-list.spec.ts` und `customer-detail.spec.ts` so um, dass sie statt `page.route()` den Pact-Mock-Server nutzen. Orientiere dich dabei an `create-customer.spec.ts`.
-
-Für jeden Test, der API-Aufrufe mockt, gilt folgendes Muster:
-
-```typescript
-await createProvider()
-  .addInteraction({
-    uponReceiving: 'Beschreibung der Anfrage',
-    withRequest: {
-      method: 'GET',
-      path: '/customers/',
-    },
-    willRespondWith: {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: [ /* ... */ ],
-    },
-  })
-  .executeTest(async (mockServer) => {
-    await setupApiProxy(page, mockServer.url);
-    // eigentlicher Test
-  });
-```
-
-**Hinweise:**
-- Tests, die keinerlei API-Aufrufe machen (z. B. reine UI-Validierungen), müssen nicht umgebaut werden.
-- Wenn ein Test mehrere API-Endpunkte anspricht, können mehrere `.addInteraction()`-Aufrufe verkettet werden.
-- Nach dem Umbau werden die Pact-Dateien automatisch im Verzeichnis `pacts/` erzeugt. Prüfe, ob die erzeugten Pacts den erwarteten Vertrag korrekt abbilden.
-- `beforeEach`-Blöcke mit `page.route()` müssen in die jeweiligen `executeTest`-Callbacks verschoben werden, weil `setupApiProxy` erst innerhalb des Callbacks aufgerufen werden kann.
+Analysiere das Problem und behebe es so, dass sowohl die Consumer-Tests
+als auch die anschließende Provider-Verifikation erfolgreich ist.
 
 ### Ziel
 
-Nach dem Umbau laufen alle Tests weiterhin erfolgreich, und im Verzeichnis `pacts/` liegt eine aktualisierte JSON-Datei mit den Consumer-Driven Contracts, die später gegen den echten Customer Service verifiziert werden können.
+Nach der Implementierung verifiziert `CustomerServiceTest.java`
+den entstandenen Contract erfolgreich.
 
-Der entstandene Contract kann mit dem Provider Test `CustomerServiceTest.java` im Customer Service gegen die echte Implementierung überprüft werden.
+## Pact Provider States
+
+Einige Interaktionen im Contract setzen einen bestimmten Zustand des Providers voraus,
+der im Consumer-Test über .given(...) angegeben werden kann.
+
+Der Customer Service bietet folgende Zustände (Provider States) an:
+
+### `James has billing address`
+
+Wird für `GET /customers/007/billing-address` verwendet, nachdem eine Rechnungsadresse für Kunde 007 (James Bond) angelegt wurde.
+
+Der Provider muss in diesem State folgende Rechnungsadresse zurückgeben:
+
+```json
+{
+  "recipient": "James Bond",
+  "street": {
+    "name": "Albert Embankment",
+    "number": "85"
+  },
+  "city": "SE1 7TP London"
+}
+```
+
+### `James has delivery address`
+
+Wird für `GET /customers/007/delivery-address` verwendet, nachdem eine Lieferadresse für Kunde 007 (James Bond) angelegt wurde.
+
+Der Provider muss in diesem State folgende Lieferadresse zurückgeben:
+
+```json
+{
+  "recipient": "James Bond",
+  "street": {
+    "name": "Chausseestraße",
+    "number": "96 - 99a"
+  },
+  "city": "10115 Berlin Mitte"
+}
+```
 

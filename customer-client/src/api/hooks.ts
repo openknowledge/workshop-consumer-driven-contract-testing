@@ -15,7 +15,7 @@
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { customerApi } from './client';
-import type { Address, CreateCustomerInput, Customer } from '../types/customer';
+import type { Address, CreateCustomerInput } from '../types/customer';
 
 export const useCustomers = () => {
   return useQuery({
@@ -43,17 +43,37 @@ export const useCreateCustomer = () => {
   });
 };
 
+export const useBillingAddress = (customerNumber: string, initialData?: Address) => {
+  return useQuery({
+    queryKey: ['billing-address', customerNumber],
+    queryFn: () => customerApi.getBillingAddress(customerNumber),
+    initialData,
+    staleTime: Infinity,
+    enabled: !!customerNumber && initialData !== undefined,
+  });
+};
+
+export const useDeliveryAddress = (customerNumber: string, initialData?: Address) => {
+  return useQuery({
+    queryKey: ['delivery-address', customerNumber],
+    queryFn: () => customerApi.getDeliveryAddress(customerNumber),
+    initialData,
+    staleTime: Infinity,
+    enabled: !!customerNumber && initialData !== undefined,
+  });
+};
+
 export const useUpdateBillingAddress = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ customerNumber, address }: { customerNumber: string; address: Address }) =>
       customerApi.updateBillingAddress(customerNumber, address),
-    onSuccess: (_, variables) => {
-      queryClient.setQueryData(
-        ['customer', variables.customerNumber],
-        (old: Customer | undefined) => (old ? { ...old, billingAddress: variables.address } : old),
-      );
+    onSuccess: async (_, variables) => {
+      await queryClient.fetchQuery({
+        queryKey: ['billing-address', variables.customerNumber],
+        queryFn: () => customerApi.getBillingAddress(variables.customerNumber),
+      });
     },
   });
 };
@@ -64,11 +84,11 @@ export const useUpdateDeliveryAddress = () => {
   return useMutation({
     mutationFn: ({ customerNumber, address }: { customerNumber: string; address: Address }) =>
       customerApi.updateDeliveryAddress(customerNumber, address),
-    onSuccess: (_, variables) => {
-      queryClient.setQueryData(
-        ['customer', variables.customerNumber],
-        (old: Customer | undefined) => (old ? { ...old, deliveryAddress: variables.address } : old),
-      );
+    onSuccess: async (_, variables) => {
+      await queryClient.fetchQuery({
+        queryKey: ['delivery-address', variables.customerNumber],
+        queryFn: () => customerApi.getDeliveryAddress(variables.customerNumber),
+      });
     },
   });
 };

@@ -15,7 +15,7 @@
  */
 import { useForm } from '@tanstack/react-form';
 import { useState } from 'react';
-import { useUpdateBillingAddress } from '../api/hooks';
+import { useBillingAddress, useUpdateBillingAddress } from '../api/hooks';
 import { addressSchema } from '../types/customer';
 import type { Address } from '../types/customer';
 import { z, type ZodIssue } from 'zod';
@@ -33,15 +33,16 @@ export default function BillingAddressForm({
   onSuccess,
   onCancel,
 }: BillingAddressFormProps) {
+  const { data: address } = useBillingAddress(customerNumber, initialAddress);
   const updateBillingAddress = useUpdateBillingAddress();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const form = useForm({
     defaultValues: {
-      recipient: initialAddress?.recipient || '',
-      streetName: initialAddress?.street?.name || '',
-      houseNumber: initialAddress?.street?.number || '',
-      city: initialAddress?.city || '',
+      recipient: address?.recipient || '',
+      streetName: address?.street?.name || '',
+      houseNumber: address?.street?.number || '',
+      city: address?.city || '',
     },
     onSubmit: async ({ value }) => {
       try {
