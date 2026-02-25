@@ -31,6 +31,56 @@ jobs:
       - name: Build
         run: npm run build
 
+  test-client:
+    runs-on: ubuntu-latest
+    needs: build-client
+    defaults:
+      run:
+        working-directory: customer-client
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: customer-client/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Start WireMock
+        run: docker compose up -d wiremock
+        working-directory: .
+
+      - name: Wait for WireMock
+        run: |
+          until curl -sf http://localhost:8080/__admin/health > /dev/null; do
+            echo "Waiting for WireMock..."
+            sleep 2
+          done
+        working-directory: .
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright tests with WireMock
+        run: npm run test:wiremock
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-wiremock
+          path: customer-client/playwright-report/
+
+      - name: Stop WireMock
+        if: always()
+        run: docker compose down
+        working-directory: .
+
   build:
     runs-on: ubuntu-latest
     needs: build-client
