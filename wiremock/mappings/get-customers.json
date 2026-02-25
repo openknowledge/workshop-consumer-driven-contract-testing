@@ -1,0 +1,18 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/customers/"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*"
+    },
+    "jsonBody": [
+      { "number": "0815", "name": "Max Mustermann" },
+      { "number": "0816", "name": "Erika Mustermann" },
+      { "number": "007", "name": "James Bond" }
+    ]
+  }
+}

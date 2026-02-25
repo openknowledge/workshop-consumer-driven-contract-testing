@@ -11,7 +11,8 @@
     "format:check": "prettier --check .",
     "preview": "vite preview",
     "test": "playwright test",
-    "test:ui": "playwright test --ui"
+    "test:ui": "playwright test --ui",
+    "test:wiremock": "playwright test --config=playwright.wiremock.config.ts"
   },
   "dependencies": {
     "@tanstack/react-form": "^1.28.0",
