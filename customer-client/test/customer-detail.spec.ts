@@ -15,9 +15,44 @@
  */
 import { test, expect } from '@playwright/test';
 
+const API_URL = 'http://localhost:8181';
+
+const customer0815 = {
+  number: '0815',
+  name: 'Max Mustermann',
+  billingAddress: {
+    recipient: 'Max Mustermann',
+    street: { name: 'Poststr.', number: '1' },
+    city: '26122 Oldenburg',
+  },
+  deliveryAddress: {
+    recipient: 'Max Mustermann',
+    street: { name: 'Poststr.', number: '1' },
+    city: '26122 Oldenburg',
+  },
+};
+
 test.describe('Adressen anlegen', () => {
   test('Rechnungsadresse anlegen', async ({ page }) => {
     // Given
+    let billingAddress: object | undefined;
+
+    await page.route(`${API_URL}/customers/007`, async (route) => {
+      const customer = billingAddress
+        ? { number: '007', name: 'James Bond', billingAddress }
+        : { number: '007', name: 'James Bond' };
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(customer),
+      });
+    });
+
+    await page.route(`${API_URL}/customers/007/billing-address`, async (route) => {
+      billingAddress = JSON.parse(route.request().postData() || '{}');
+      await route.fulfill({ status: 204 });
+    });
+
     await page.goto('/customers/007');
     await expect(page.getByText('007')).toBeVisible();
     await expect(page.getByText('Name: James Bond')).toBeVisible();
@@ -41,6 +76,24 @@ test.describe('Adressen anlegen', () => {
 
   test('Lieferadresse anlegen', async ({ page }) => {
     // Given
+    let deliveryAddress: object | undefined;
+
+    await page.route(`${API_URL}/customers/007`, async (route) => {
+      const customer = deliveryAddress
+        ? { number: '007', name: 'James Bond', deliveryAddress }
+        : { number: '007', name: 'James Bond' };
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(customer),
+      });
+    });
+
+    await page.route(`${API_URL}/customers/007/delivery-address`, async (route) => {
+      deliveryAddress = JSON.parse(route.request().postData() || '{}');
+      await route.fulfill({ status: 204 });
+    });
+
     await page.goto('/customers/007');
     await expect(page.getByText('007')).toBeVisible();
     await expect(page.getByText('Name: James Bond')).toBeVisible();
@@ -65,6 +118,16 @@ test.describe('Adressen anlegen', () => {
 });
 
 test.describe('Adressen bearbeiten', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.route(`${API_URL}/customers/0815`, async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(customer0815),
+      });
+    });
+  });
+
   test('Rechnungsadresse: Straße ohne Hausnummer zeigt Fehlermeldung', async ({ page }) => {
     // Given
     await page.goto('/customers/0815');
@@ -135,6 +198,14 @@ test.describe('Adressen bearbeiten', () => {
 
   test('Lieferadresse: PLZ existiert nicht zeigt Fehlermeldung', async ({ page }) => {
     // Given
+    await page.route(`${API_URL}/customers/0815/delivery-address`, async (route) => {
+      await route.fulfill({
+        status: 422,
+        contentType: 'application/problem+json',
+        body: JSON.stringify({ detail: 'Meinten Sie 26122 Oldenburg?' }),
+      });
+    });
+
     await page.goto('/customers/0815');
     const deliverySection = page.locator('.address-section', {
       has: page.locator('h3', { hasText: 'Lieferadresse' }),
@@ -151,6 +222,14 @@ test.describe('Adressen bearbeiten', () => {
 
   test('Lieferadresse: PLZ passt nicht zum Ort zeigt Fehlermeldung', async ({ page }) => {
     // Given
+    await page.route(`${API_URL}/customers/0815/delivery-address`, async (route) => {
+      await route.fulfill({
+        status: 422,
+        contentType: 'application/problem+json',
+        body: JSON.stringify({ detail: 'Meinten Sie 10115 Berlin Mitte?' }),
+      });
+    });
+
     await page.goto('/customers/0815');
     const deliverySection = page.locator('.address-section', {
       has: page.locator('h3', { hasText: 'Lieferadresse' }),
@@ -168,6 +247,16 @@ test.describe('Adressen bearbeiten', () => {
 
   test('Lieferadresse: Unbekannte PLZ mit bekannter Stadt zeigt mögliche PLZ', async ({ page }) => {
     // Given
+    await page.route(`${API_URL}/customers/0815/delivery-address`, async (route) => {
+      await route.fulfill({
+        status: 422,
+        contentType: 'application/problem+json',
+        body: JSON.stringify({
+          detail: 'Meinten Sie eine von 30159 Hannover oder 30161 Hannover?',
+        }),
+      });
+    });
+
     await page.goto('/customers/0815');
     const deliverySection = page.locator('.address-section', {
       has: page.locator('h3', { hasText: 'Lieferadresse' }),
@@ -186,6 +275,16 @@ test.describe('Adressen bearbeiten', () => {
 
   test('Lieferadresse: PLZ mit mehreren möglichen Orten zeigt Fehlermeldung', async ({ page }) => {
     // Given
+    await page.route(`${API_URL}/customers/0815/delivery-address`, async (route) => {
+      await route.fulfill({
+        status: 422,
+        contentType: 'application/problem+json',
+        body: JSON.stringify({
+          detail: 'Meinten Sie eine von 19322 Wittenberge oder 19322 Rühstädt?',
+        }),
+      });
+    });
+
     await page.goto('/customers/0815');
     const deliverySection = page.locator('.address-section', {
       has: page.locator('h3', { hasText: 'Lieferadresse' }),
@@ -204,6 +303,10 @@ test.describe('Adressen bearbeiten', () => {
 
   test('Rechnungsadresse ändern', async ({ page }) => {
     // Given
+    await page.route(`${API_URL}/customers/0815/billing-address`, async (route) => {
+      await route.fulfill({ status: 204 });
+    });
+
     await page.goto('/customers/0815');
 
     // When
@@ -227,6 +330,10 @@ test.describe('Adressen bearbeiten', () => {
 
   test('Lieferadresse ändern', async ({ page }) => {
     // Given
+    await page.route(`${API_URL}/customers/0815/delivery-address`, async (route) => {
+      await route.fulfill({ status: 204 });
+    });
+
     await page.goto('/customers/0815');
     await expect(page.getByText('0815')).toBeVisible();
     await expect(page.getByText('Name: Max Mustermann')).toBeVisible();

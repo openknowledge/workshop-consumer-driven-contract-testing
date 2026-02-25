@@ -15,6 +15,8 @@
  */
 import { test, expect } from '@playwright/test';
 
+const API_URL = 'http://localhost:8181';
+
 test.describe('Neuer Kunde', () => {
   test('zeigt Fehler bei leerem Namen', async ({ page }) => {
     // Given
@@ -30,6 +32,22 @@ test.describe('Neuer Kunde', () => {
 
   test('erstellt Kunden erfolgreich und navigiert zur Liste', async ({ page }) => {
     // Given
+    const customerList: object[] = [];
+
+    await page.route(`${API_URL}/customers/`, async (route) => {
+      if (route.request().method() === 'POST') {
+        const body = JSON.parse(route.request().postData() || '{}');
+        customerList.push({ number: '0001', name: body.name });
+        await route.fulfill({ status: 201 });
+      } else {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify(customerList),
+        });
+      }
+    });
+
     await page.goto('/customers/new');
 
     // When

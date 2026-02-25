@@ -15,6 +15,24 @@
  */
 import { test, expect } from '@playwright/test';
 
+const API_URL = 'http://localhost:8181';
+
+const customers = [
+  { number: '0815', name: 'Max Mustermann' },
+  { number: '0816', name: 'Erika Mustermann' },
+  { number: '007', name: 'James Bond' },
+];
+
+test.beforeEach(async ({ page }) => {
+  await page.route(`${API_URL}/customers/`, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(customers),
+    });
+  });
+});
+
 test('zeigt Kunden mit Kundennummer und Name in der Tabelle', async ({ page }) => {
   await page.goto('/');
 
@@ -27,6 +45,14 @@ test('zeigt Kunden mit Kundennummer und Name in der Tabelle', async ({ page }) =
 });
 
 test('navigiert zu Kundendetails beim Klick auf eine Zeile', async ({ page }) => {
+  await page.route(`${API_URL}/customers/0815`, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ number: '0815', name: 'Max Mustermann' }),
+    });
+  });
+
   await page.goto('/');
   await page.getByRole('cell', { name: 'Max Mustermann' }).click();
 
