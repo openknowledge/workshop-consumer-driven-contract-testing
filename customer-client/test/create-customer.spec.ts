@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { test, expect } from '@playwright/test';
-import { setupApiProxy } from './pact-proxy';
+import { createProvider, setupApiProxy } from './pact-proxy';
 import { PactV4 } from '@pact-foundation/pact';
 import path from 'path';
 
@@ -32,12 +32,7 @@ test.describe('Neuer Kunde', () => {
   });
 
   test('erstellt Kunden erfolgreich und navigiert zur Liste', async ({ page }) => {
-    const provider = new PactV4({
-      consumer: 'create-customer',
-      provider: 'customer-service',
-      dir: path.resolve(process.cwd(), '../pacts'),
-      logLevel: 'warn',
-    });
+    const provider = createProvider();
 
     provider
       .addInteraction()
@@ -51,7 +46,8 @@ test.describe('Neuer Kunde', () => {
 
     await provider
       .addInteraction()
-      .uponReceiving('a request to get all customers')
+	  .given("Sherlock is available")
+      .uponReceiving('a request to get all customers (inkl. Sherlock)')
       .withRequest('GET', '/customers/')
       .willRespondWith(200, (builder) => {
         builder.headers({ 'Content-Type': 'application/json' }).jsonBody([

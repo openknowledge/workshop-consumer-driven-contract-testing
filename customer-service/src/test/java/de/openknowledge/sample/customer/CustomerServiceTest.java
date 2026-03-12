@@ -37,11 +37,15 @@ import au.com.dius.pact.provider.junit5.HttpTestTarget;
 import au.com.dius.pact.provider.junit5.PactVerificationContext;
 import au.com.dius.pact.provider.junit5.PactVerificationInvocationContextProvider;
 import au.com.dius.pact.provider.junitsupport.Provider;
+import au.com.dius.pact.provider.junitsupport.State;
 import au.com.dius.pact.provider.junitsupport.loader.PactFolder;
 import de.openknowledge.sample.address.domain.Address;
 import de.openknowledge.sample.address.domain.BillingAddressRepository;
 import de.openknowledge.sample.address.domain.DeliveryAddressRepository;
+import de.openknowledge.sample.customer.domain.Customer;
+import de.openknowledge.sample.customer.domain.CustomerName;
 import de.openknowledge.sample.customer.domain.CustomerNumber;
+import de.openknowledge.sample.customer.domain.CustomerRepository;
 import rocks.limburg.cdimock.MockitoBeans;
 
 @Provider("customer-service")
@@ -52,6 +56,9 @@ public class CustomerServiceTest {
 
     @ConfigurationInject
     private Meecrowave.Builder config;
+
+    @Inject
+    private CustomerRepository customerRepository;
 
     @Inject
     private BillingAddressRepository billingAddressRepository;
@@ -95,5 +102,10 @@ public class CustomerServiceTest {
     @ExtendWith(PactVerificationInvocationContextProvider.class)
     void pactVerificationTestTemplate(PactVerificationContext context) {
         ofNullable(context).ifPresent(PactVerificationContext::verifyInteraction);
+    }
+
+    @State("Sherlock is available")
+    public void insertSherlock() {
+        customerRepository.persist(new Customer(new CustomerName("Sherlock Holmes")));
     }
 }

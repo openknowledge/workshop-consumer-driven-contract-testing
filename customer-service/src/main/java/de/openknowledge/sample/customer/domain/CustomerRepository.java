@@ -42,6 +42,7 @@ public class CustomerRepository {
     @PostConstruct
     public void initialize() {
 
+        CUSTOMER_NUMBERS.set(0);
         customers = new ConcurrentHashMap<>();
         customers.put(new CustomerNumber("0815"),
             new Customer(new CustomerNumber("0815"), new CustomerName("Max Mustermann")));
