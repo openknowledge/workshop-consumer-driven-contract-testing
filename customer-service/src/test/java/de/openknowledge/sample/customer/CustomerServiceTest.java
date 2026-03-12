@@ -121,6 +121,7 @@ public class CustomerServiceTest {
             .thenReturn(Optional.of(Address.of("James Bond").atStreet("Chausseestraße 96-99a").inCity("10115 Berlin Mitte").build()));
     }
 
+    @State("Sherlock is available")
     public void insertSherlock() {
         customerRepository.persist(new Customer(new CustomerName("Sherlock Holmes")));
     }
