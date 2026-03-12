@@ -15,6 +15,8 @@
  */
 package de.openknowledge.sample.customer.application;
 
+import static java.net.URI.create;
+
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.function.Supplier;
@@ -74,7 +76,7 @@ public class CustomerResource {
     public Response createCustomer(Customer customer, @Context UriInfo uri) throws URISyntaxException {
         LOG.info("RESTful call 'POST new customer'");
         customerRepository.persist(customer);
-        return Response.created(uri.getAbsolutePathBuilder().path(customer.getNumber().toString()).build()).build();
+        return Response.created(create("http://localhost/customers/" + customer.getNumber())).build();
     }
 
     @GET

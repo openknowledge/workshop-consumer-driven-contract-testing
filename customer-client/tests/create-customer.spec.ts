@@ -40,7 +40,11 @@ test.describe('Neuer Kunde', () => {
           .headers({ 'Content-Type': 'application/json' })
           .jsonBody({ name: 'Sherlock Holmes' });
       })
-      .willRespondWith(201);
+      .willRespondWith(201, (builder) => {
+        builder.headers({
+          Location: 'http://localhost:50376/customers/1',
+        });
+      });
 
     await provider
       .addInteraction()

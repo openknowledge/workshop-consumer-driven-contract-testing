@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 import jakarta.annotation.PostConstruct;
@@ -35,14 +34,12 @@ import jakarta.enterprise.context.ApplicationScoped;
 public class CustomerRepository {
 
     private static final Logger LOGGER = Logger.getLogger(CustomerRepository.class.getSimpleName());
-    private static final AtomicInteger CUSTOMER_NUMBERS = new AtomicInteger(0);
 
     private Map<CustomerNumber, Customer> customers;
 
     @PostConstruct
     public void initialize() {
 
-        CUSTOMER_NUMBERS.set(0);
         customers = new ConcurrentHashMap<>();
         customers.put(new CustomerNumber("0815"),
             new Customer(new CustomerNumber("0815"), new CustomerName("Max Mustermann")));
@@ -62,7 +59,7 @@ public class CustomerRepository {
     }
 
     public void persist(Customer customer) {
-        customer.number = new CustomerNumber(Integer.toString(CUSTOMER_NUMBERS.incrementAndGet()));
+        customer.number = new CustomerNumber(Integer.toString(customers.size()));
         customers.put(customer.number, customer);
     }
 
