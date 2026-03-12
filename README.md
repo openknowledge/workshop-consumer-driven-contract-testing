@@ -1,13 +1,13 @@
-# Workshop API Design
+# Workshop Consumer-Driven Contract Testing
 
-Herzlich willkommen zum Workshop API Design.
+Herzlich willkommen zum Workshop Consumer-Driven Contract Testing
 
 ## Übungen
 
-### API Design
+### UI
 
-- [OpenAPI](https://github.com/openknowledge/workshop-api-design/tree/openapi)
-- [Mocking](https://github.com/openknowledge/workshop-api-design/tree/wiremock)
+- [Wiremock](https://github.com/openknowledge/workshop-consumer-driven-contract-testing/tree/playwright-wiremock)
+- [Pact Mocking](https://github.com/openknowledge/workshop-consumer-driven-contract-testing/tree/playwright-pact)
 - [AsyncAPI](https://github.com/openknowledge/workshop-api-design/tree/asyncapi)
 
 ### API Testing
