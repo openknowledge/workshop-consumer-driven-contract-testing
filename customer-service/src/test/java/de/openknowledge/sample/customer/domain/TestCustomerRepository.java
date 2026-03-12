@@ -15,15 +15,10 @@
  */
 package de.openknowledge.sample.customer.domain;
 
-import jakarta.enterprise.context.Destroyed;
 import jakarta.enterprise.context.RequestScoped;
-import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Specializes;
 
 @Specializes
+@RequestScoped
 public class TestCustomerRepository extends CustomerRepository {
-
-    public void reset(@Observes @Destroyed(RequestScoped.class) Object event) {
-        super.initialize();
-    }
 }

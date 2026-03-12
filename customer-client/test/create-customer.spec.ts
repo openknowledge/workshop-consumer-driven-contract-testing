@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 import { test, expect } from '@playwright/test';
+import { MatchersV3 } from '@pact-foundation/pact';
 import { createProvider, setupApiProxy } from './pact-proxy';
-import { PactV4 } from '@pact-foundation/pact';
-import path from 'path';
 
 test.describe('Neuer Kunde', () => {
   test('zeigt Fehler bei leerem Namen', async ({ page }) => {
@@ -44,7 +43,7 @@ test.describe('Neuer Kunde', () => {
       })
       .willRespondWith(201, (builder) => {
 		builder.headers({
-			"Location": "http://localhost:50376/customers/1"
+			"Location": MatchersV3.regex('http://localhost/customers/\\d+', 'http://localhost/customers/1')
 		})
 	  });
 
@@ -58,7 +57,7 @@ test.describe('Neuer Kunde', () => {
           { number: '007', name: 'James Bond' },
           { number: '0815', name: 'Max Mustermann' },
           { number: '0816', name: 'Erika Mustermann' },
-          { number: '1', name: 'Sherlock Holmes' },
+          { number: MatchersV3.like('1'), name: 'Sherlock Holmes' },
         ]);
       })
       .executeTest(async (mockServer) => {
