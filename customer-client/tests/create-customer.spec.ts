@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 import { test, expect } from '@playwright/test';
-import { createProvider, setupApiProxy } from './pact-proxy';
+import { setupApiProxy } from './pact-proxy';
+import { PactV4 } from '@pact-foundation/pact';
+import path from 'path';
 
 test.describe('Neuer Kunde', () => {
   test('zeigt Fehler bei leerem Namen', async ({ page }) => {
@@ -22,7 +24,7 @@ test.describe('Neuer Kunde', () => {
     await page.goto('/customers/new');
 
     // When
-    await page.getByLabel('Name *').fill('Max');
+    await page.getByLabel('Name *').fill('Sherlock');
     await page.getByLabel('Name *').fill('');
 
     // Then
@@ -30,7 +32,12 @@ test.describe('Neuer Kunde', () => {
   });
 
   test('erstellt Kunden erfolgreich und navigiert zur Liste', async ({ page }) => {
-    const provider = createProvider();
+    const provider = new PactV4({
+      consumer: 'create-customer',
+      provider: 'customer-service',
+      dir: path.resolve(process.cwd(), '../pacts'),
+      logLevel: 'warn',
+    });
 
     provider
       .addInteraction()
@@ -38,7 +45,7 @@ test.describe('Neuer Kunde', () => {
       .withRequest('POST', '/customers/', (builder) => {
         builder
           .headers({ 'Content-Type': 'application/json' })
-          .jsonBody({ name: 'Max Mustermann' });
+          .jsonBody({ name: 'Sherlock Holmes' });
       })
       .willRespondWith(201);
 
@@ -51,6 +58,7 @@ test.describe('Neuer Kunde', () => {
           { number: '007', name: 'James Bond' },
           { number: '0815', name: 'Max Mustermann' },
           { number: '0816', name: 'Erika Mustermann' },
+          { number: '1', name: 'Sherlock Holmes' },
         ]);
       })
       .executeTest(async (mockServer) => {
@@ -58,10 +66,10 @@ test.describe('Neuer Kunde', () => {
         await page.goto('/customers/new');
 
         // When
-        await page.getByLabel('Name *').fill('Max Mustermann');
+        await page.getByLabel('Name *').fill('Sherlock Holmes');
         await page.getByRole('button', { name: 'Kunde erstellen' }).click();
 
-        await expect(page.getByRole('cell', { name: 'Max Mustermann' })).toBeVisible();
+        await expect(page.getByRole('cell', { name: 'Sherlock Holmes' })).toBeVisible();
       });
   });
 });

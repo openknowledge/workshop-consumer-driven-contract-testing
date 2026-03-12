@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 open knowledge GmbH
+ * Copyright 2019 - 2026 open knowledge GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,10 @@ import au.com.dius.pact.provider.junitsupport.loader.PactFolder;
 import de.openknowledge.sample.address.domain.Address;
 import de.openknowledge.sample.address.domain.BillingAddressRepository;
 import de.openknowledge.sample.address.domain.DeliveryAddressRepository;
+import de.openknowledge.sample.customer.domain.Customer;
+import de.openknowledge.sample.customer.domain.CustomerName;
 import de.openknowledge.sample.customer.domain.CustomerNumber;
+import de.openknowledge.sample.customer.domain.CustomerRepository;
 import rocks.limburg.cdimock.MockitoBeans;
 
 @Provider("customer-service")
@@ -56,6 +59,9 @@ public class CustomerServiceTest {
     private Meecrowave.Builder config;
 
     @Inject
+    private CustomerRepository customerRepository;
+
+    @Inject
     private BillingAddressRepository billingAddressRepository;
 
     @Inject
@@ -63,6 +69,8 @@ public class CustomerServiceTest {
 
     @BeforeEach
     public void setUp() {
+        // insertSherlock();
+
         when(deliveryAddressRepository.find(new CustomerNumber("0815")))
             .thenReturn(Optional.of(Address.of("Max Mustermann").atStreet("Poststrasse 1").inCity("26122 Oldenburg").build()));
         when(deliveryAddressRepository.find(new CustomerNumber("0816")))
@@ -111,5 +119,9 @@ public class CustomerServiceTest {
         reset(deliveryAddressRepository);
         when(deliveryAddressRepository.find(new CustomerNumber("007")))
             .thenReturn(Optional.of(Address.of("James Bond").atStreet("Chausseestraße 96-99a").inCity("10115 Berlin Mitte").build()));
+    }
+
+    public void insertSherlock() {
+        customerRepository.persist(new Customer(new CustomerName("Sherlock Holmes")));
     }
 }
