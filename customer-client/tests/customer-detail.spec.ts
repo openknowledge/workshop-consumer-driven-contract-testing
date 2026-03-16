@@ -56,6 +56,7 @@ test.describe('Adressen anlegen', () => {
       });
     provider
       .addInteraction()
+      .given('James has billing address')
       .uponReceiving('a request to get billing address for customer 007')
       .withRequest('GET', '/customers/007/billing-address')
       .willRespondWith(200, (builder) => {
@@ -113,6 +114,7 @@ test.describe('Adressen anlegen', () => {
       });
     provider
       .addInteraction()
+      .given('James has delivery address')
       .uponReceiving('a request to get delivery address for customer 007')
       .withRequest('GET', '/customers/007/delivery-address')
       .willRespondWith(200, (builder) => {

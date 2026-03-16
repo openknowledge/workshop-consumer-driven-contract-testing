@@ -36,7 +36,7 @@ jobs:
         working-directory: customer-client
 
       - name: Run Playwright tests
-        run: npx playwright test --grep-invert "Adressen anlegen"
+        run: npm run test
         working-directory: customer-client
 
       - name: Upload pact files
