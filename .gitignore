@@ -3,6 +3,7 @@
 !.gitignore
 !.github
 !.gitattributes
+!.devcontainer/
 /keycloak/*
 target/
 *.iml
