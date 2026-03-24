@@ -1,0 +1,29 @@
+{
+	"name": "Online Shop",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"features": {
+		"ghcr.io/devcontainers/features/java:1": {
+			"version": "none",
+			"installMaven": "true",
+			"mavenVersion": "3.8.6",
+			"installGradle": "false"
+		},
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {
+			"dockerDashComposeVersion": "v2"
+		}
+	},
+	"postCreateCommand": "cd customer-client && npm ci && npx playwright install --with-deps chromium",
+	"postStartCommand": "docker compose up --build && cd customer-client && npm run test:ui:codespaces",
+	"customizations": {
+		"vscode": {
+			"settings": {},
+			"extensions": [
+				"streetsidesoftware.code-spell-checker",
+				"ms-playwright.playwright"
+			]
+		}
+	},
+	"forwardPorts": [3000, 3030, 4040, 5050, 5432, 6060, 7070, 8181, 8832]
+}

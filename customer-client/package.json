@@ -12,6 +12,7 @@
     "preview": "vite preview",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
+    "test:ui:codespaces": "playwright test --ui --ui-host=0.0.0.0 --ui-port=8832",
     "test:wiremock": "playwright test --config=playwright.wiremock.config.ts"
   },
   "dependencies": {
