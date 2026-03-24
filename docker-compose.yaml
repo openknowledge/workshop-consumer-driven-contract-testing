@@ -90,7 +90,6 @@ services:
     - POSTGRES_PASSWORD=delivery-password
     volumes:
     - ./delivery-service/src/main/resources/sql:/docker-entrypoint-initdb.d
-      - "8184:8080"
   customer-client:
     build:
       context: customer-client/

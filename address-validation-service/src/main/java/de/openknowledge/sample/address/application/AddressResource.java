@@ -15,9 +15,6 @@
  */
 package de.openknowledge.sample.address.application;
 
-import static jakarta.ws.rs.core.HttpHeaders.ACCEPT_LANGUAGE;
-import static java.util.Locale.GERMANY;
-import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
 
 import java.net.URI;

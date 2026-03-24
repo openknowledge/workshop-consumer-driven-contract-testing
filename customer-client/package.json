@@ -11,7 +11,8 @@
     "format:check": "prettier --check .",
     "preview": "vite preview",
     "test": "playwright test",
-    "test:ui": "playwright test --ui"
+    "test:ui": "playwright test --ui",
+    "test:ui:codespaces": "playwright test --ui --ui-host=0.0.0.0 --ui-port=8832"
   },
   "dependencies": {
     "@tanstack/react-form": "^1.28.0",
