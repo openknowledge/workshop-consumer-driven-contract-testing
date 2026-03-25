@@ -15,11 +15,10 @@
  */
 package de.openknowledge.sample.customer.domain;
 
-import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Specializes;
 
 @Specializes
-@RequestScoped
+//@RequestScoped
 public class TestCustomerRepository extends CustomerRepository {
 
 }

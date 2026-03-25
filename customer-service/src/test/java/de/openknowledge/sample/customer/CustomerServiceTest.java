@@ -69,7 +69,8 @@ public class CustomerServiceTest {
 
     @BeforeEach
     public void setUp() {
-        // insertSherlock();
+        customerRepository.initialize();
+        insertSherlock();
 
         when(deliveryAddressRepository.find(new CustomerNumber("0815")))
             .thenReturn(Optional.of(Address.of("Max Mustermann").atStreet("Poststrasse 1").inCity("26122 Oldenburg").build()));
