@@ -195,7 +195,7 @@
     <module name="TypecastParenPad"/>
 
     <module name="UncommentedMain">
-      <property name="excludedClasses" value="\.AddressApplication$"/>
+      <property name="excludedClasses" value="\.CustomerApplication$"/>
     </module>
     <module name="UnusedImports"/>
     <module name="UpperEll"/>
