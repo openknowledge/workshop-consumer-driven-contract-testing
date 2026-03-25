@@ -62,3 +62,8 @@ Alle HTTP-Requests in den Playwright-Tests sollen durch WireMock-Mappings ersetz
 - Für das Laden neuer Mappings ohne Neustart kann die WireMock Admin API unter `http://localhost:8080/__admin/mappings` genutzt – oder der WireMock-Container einfach neu gestartet werden.
 - Bei einem `GET`, `POST`- oder `PUT`-Request muss ggf. auch der entsprechende `OPTIONS`-Preflight-Request gemockt werden (CORS).
 - Die Adressvalidierung in `customer-detail.spec.ts` erwartet spezifische Fehlermeldungen – die Responses im Mapping müssen die exakten Fehlertexte aus den Tests zurückliefern.
+
+### Lokales Ausführen
+
+Alternativ zum Starten mit Docker kann der WireMock auch lokal ausgeführt werden.
+Dazu muss einfach in der CLI im Ordner `wiremock` der Befehl `java -jar wiremock-standalone-3.13.2.jar --port 7070` ausgeführt werden.
